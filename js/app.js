@@ -145,34 +145,34 @@ function renderBets() {
     const profitSymbol = bet.profitLoss > 0 ? '+' : '';
 
     row.innerHTML = `
-      <td>${bet.date}</td>
-      <td>${bet.sport}</td>
-      <td>${bet.event}</td>
-      <td>${bet.betType}</td>
-      <td>${bet.odds}</td>
-      <td>$${bet.stake.toFixed(2)}</td>
-      <td>${bet.outcome}</td>
-      <td>$${bet.payout.toFixed(2)}</td>
-      <td class="${profitClass}">${
-        bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)
-      }</td>
-      <td>${bet.description || ''}</td>
-      <td>${bet.note || ''}</td>
-      <td>
-        ${
-          bet.outcome === 'Pending'
-            ? `
-              <select onchange="settleBet(this, ${bet.id})">
-                <option value="">Settle</option>
-                <option value="Win">Win</option>
-                <option value="Loss">Loss</option>
-              </select>
-              <button class="btn btn-danger" onclick="removeBet(this)">Remove</button>
-            `
-            : `<button class="btn btn-danger" onclick="removeBet(this)">Remove</button>`
-        }
-      </td>
-    `;
+  <td>${bet.date}</td>
+  <td>${bet.sport}</td>
+  <td>${bet.event}</td>
+  <td>${bet.betType}</td>
+  <td>${bet.description || ''}</td>
+  <td>${bet.odds}</td>
+  <td>$${bet.stake.toFixed(2)}</td>
+  <td>${bet.outcome}</td>
+  <td>$${bet.payout.toFixed(2)}</td>
+  <td class="${profitClass}">${
+    bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)
+  }</td>
+  <td>${bet.note || ''}</td>
+  <td>
+    ${
+      bet.outcome === 'Pending'
+        ? `
+          <select onchange="settleBet(this, ${bet.id})">
+            <option value="">Settle</option>
+            <option value="Win">Win</option>
+            <option value="Loss">Loss</option>
+          </select>
+          <button class="btn btn-danger" onclick="removeBet(this)">Remove</button>
+        `
+        : `<button class="btn btn-danger" onclick="removeBet(this)">Remove</button>`
+    }
+  </td>
+`;
 
     tbody.appendChild(row);
   });

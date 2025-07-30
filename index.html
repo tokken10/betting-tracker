@@ -8,11 +8,16 @@
 </head>
 <body>
   <div class="container">
+    <!-- HEADER -->
     <div class="header">
-      <h1>🎯 Betting Performance Tracker</h1>
+      <h1>🎯 Wetting Performance Tracker</h1>
       <p>Track your bets meticulously for better bankroll management</p>
+      <nav style="margin-top: 10px;">
+        <a href="profile.html" style="color: white; text-decoration: underline; font-size: 14px;">→ View Profile</a>
+      </nav>
     </div>
 
+    <!-- STATS -->
     <div class="stats-bar">
       <div class="stat"><div class="stat-value" id="totalBets">0</div><div>Total Bets</div></div>
       <div class="stat"><div class="stat-value" id="winRate">0%</div><div>Win Rate</div></div>
@@ -22,7 +27,9 @@
       <div class="stat"><div class="stat-value" id="roi">0%</div><div>ROI</div></div>
     </div>
 
+    <!-- FORM -->
     <div class="controls">
+      <!-- Row 1 -->
       <div class="form-row">
         <div class="form-group">
           <label for="date">Date</label>
@@ -64,6 +71,7 @@
         </div>
       </div>
 
+      <!-- Row 2 -->
       <div class="form-row">
         <div class="form-group">
           <label for="odds">Odds</label>
@@ -88,6 +96,7 @@
         </div>
       </div>
 
+      <!-- Row 3 -->
       <div class="form-row">
         <div class="form-group">
           <label for="note">Note</label>
@@ -95,10 +104,12 @@
         </div>
       </div>
 
+      <!-- Buttons -->
       <button class="btn" onclick="addBet()">Add Bet</button>
       <button class="btn btn-danger" onclick="clearAllBets()">Clear All</button>
     </div>
 
+    <!-- SORT CONTROLS -->
     <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 20px;">
       <label>
         Sort by:
@@ -121,6 +132,7 @@
       </label>
     </div>
 
+    <!-- TABLE -->
     <div class="table-container">
       <table>
         <thead>
@@ -140,11 +152,12 @@
           </tr>
         </thead>
         <tbody id="betsTable">
-          <!-- Bets rendered by JavaScript -->
+          <!-- Populated by JS -->
         </tbody>
       </table>
     </div>
 
+    <!-- DOWNLOAD -->
     <div class="download-section">
       <button class="btn" onclick="exportToCSV()">📊 Export to CSV</button>
       <p style="margin-top: 10px; color: #7f8c8d; font-size: 12px;">

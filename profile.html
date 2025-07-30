@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Betting Profile</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .profile-avatar {
+      width: 60px;
+      height: 60px;
+      background: #2980b9;
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+
+    .profile-header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 20px;
+      flex-direction: column;
+      text-align: center;
+      color: white;
+    }
+
+    .profile-header-insights {
+      font-size: 14px;
+      color: white;
+      margin-top: 10px;
+    }
+
+    .highlight {
+      font-weight: bold;
+      color: white;
+    }
+
+    .positive {
+      color: #27ae60;
+    }
+
+    .negative {
+      color: #e74c3c;
+    }
+
+    .header a {
+      color: white;
+      font-size: 13px;
+      text-decoration: underline;
+      margin-top: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="profile-header-container">
+        <div class="profile-avatar">BT</div>
+        <div>
+          <h1>👤 Betting Profile</h1>
+          <p>Member since today • <span id="profile-total-bets">0</span> total bets</p>
+          <div class="profile-header-insights">
+            Most Profitable: <span class="highlight" id="profile-best-sport">-</span> •
+            Avg Stake: <span class="highlight" id="profile-avg-stake">$0.00</span> •
+            Win Streak: <span class="highlight" id="profile-win-streak">0</span>
+          </div>
+          <a href="index.html">← Back to Tracker</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-value" id="totalBets">0</div><div>Total Bets</div></div>
+      <div class="stat"><div class="stat-value" id="winRate">0%</div><div>Win Rate</div></div>
+      <div class="stat"><div class="stat-value" id="totalStaked">$0</div><div>Total Staked</div></div>
+      <div class="stat"><div class="stat-value" id="totalReturn">$0</div><div>Total Return</div></div>
+      <div class="stat"><div class="stat-value" id="netProfit">$0</div><div>Net Profit/Loss</div></div>
+      <div class="stat"><div class="stat-value" id="roi">0%</div><div>ROI</div></div>
+    </div>
+
+    <!-- SORT CONTROLS -->
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 20px;">
+      <label>
+        Sort by:
+        <select id="sortBy" onchange="renderBets()">
+          <option value="date">Date</option>
+          <option value="sport">Sport</option>
+          <option value="event">Event</option>
+          <option value="betType">Bet Type</option>
+          <option value="outcome">Outcome</option>
+          <option value="profitLoss">Profit/Loss</option>
+        </select>
+      </label>
+
+      <label>
+        Order:
+        <select id="sortOrder" onchange="renderBets()">
+          <option value="desc">Descending</option>
+          <option value="asc">Ascending</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Sport</th>
+            <th>Event</th>
+            <th>Bet Type</th>
+            <th>Description</th>
+            <th>Odds</th>
+            <th>Stake</th>
+            <th>Outcome</th>
+            <th>Payout</th>
+            <th>Profit/Loss</th>
+            <th>Note</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="betsTable">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let bets = JSON.parse(localStorage.getItem('bettingData')) || [];
+
+    const settled = bets.filter(b => b.outcome === 'Win' || b.outcome === 'Loss');
+    const wins = settled.filter(b => b.outcome === 'Win').length;
+    const totalStaked = settled.reduce((acc, b) => acc + b.stake, 0);
+    const totalReturn = settled.reduce((acc, b) => acc + b.payout, 0);
+    const netProfit = totalReturn - totalStaked;
+    const roi = totalStaked > 0 ? (netProfit / totalStaked * 100).toFixed(1) : '0';
+    const avgStake = settled.length ? (totalStaked / settled.length).toFixed(2) : '0.00';
+
+    const profitBySport = {};
+    for (let b of settled) {
+      if (!profitBySport[b.sport]) profitBySport[b.sport] = 0;
+      profitBySport[b.sport] += b.profitLoss;
+    }
+    const bestSport = Object.entries(profitBySport).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+
+    let streak = 0;
+    let maxStreak = 0;
+    for (let b of settled) {
+      if (b.outcome === 'Win') {
+        streak++;
+        if (streak > maxStreak) maxStreak = streak;
+      } else {
+        streak = 0;
+      }
+    }
+
+    // Update profile stats
+    document.getElementById('profile-total-bets').textContent = bets.length;
+    document.getElementById('totalBets').textContent = bets.length;
+    document.getElementById('winRate').textContent = settled.length ? ((wins / settled.length) * 100).toFixed(1) + '%' : '0%';
+    document.getElementById('totalStaked').textContent = '$' + totalStaked.toFixed(2);
+    document.getElementById('totalReturn').textContent = '$' + totalReturn.toFixed(2);
+
+    const netEl = document.getElementById('netProfit');
+    netEl.textContent = (netProfit >= 0 ? '+' : '') + '$' + netProfit.toFixed(2);
+    netEl.className = netProfit >= 0 ? 'stat-value positive' : 'stat-value negative';
+
+    const roiEl = document.getElementById('roi');
+    roiEl.textContent = (roi >= 0 ? '+' : '') + roi + '%';
+    roiEl.className = roi >= 0 ? 'stat-value positive' : 'stat-value negative';
+
+    // Profile header insights
+    document.getElementById('profile-avg-stake').textContent = '$' + avgStake;
+    document.getElementById('profile-best-sport').textContent = bestSport;
+    document.getElementById('profile-win-streak').textContent = maxStreak;
+
+    function renderBets() {
+      const tbody = document.getElementById('betsTable');
+      tbody.innerHTML = '';
+
+      const sortBy = document.getElementById('sortBy')?.value || 'date';
+      const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
+
+      const sorted = [...bets].sort((a, b) => {
+        let aVal = a[sortBy];
+        let bVal = b[sortBy];
+
+        if (sortBy === 'profitLoss' || sortBy === 'stake' || sortBy === 'payout') {
+          aVal = parseFloat(aVal);
+          bVal = parseFloat(bVal);
+        }
+
+        if (sortBy === 'date') {
+          aVal = new Date(aVal).getTime();
+          bVal = new Date(bVal).getTime();
+        }
+
+        if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      sorted.forEach(bet => {
+        const row = document.createElement('tr');
+        row.className = bet.outcome.toLowerCase();
+        const profitClass = bet.profitLoss > 0 ? 'positive' : bet.profitLoss < 0 ? 'negative' : '';
+        const profitSymbol = bet.profitLoss > 0 ? '+' : '';
+        row.innerHTML = `
+          <td>${bet.date}</td>
+          <td>${bet.sport}</td>
+          <td>${bet.event}</td>
+          <td>${bet.betType}</td>
+          <td>${bet.description || ''}</td>
+          <td>${bet.odds}</td>
+          <td>$${bet.stake.toFixed(2)}</td>
+          <td>${bet.outcome}</td>
+          <td>$${bet.payout.toFixed(2)}</td>
+          <td class="${profitClass}">${
+            bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)
+          }</td>
+          <td>${bet.note || ''}</td>
+          <td>
+            ${
+              bet.outcome === 'Pending'
+                ? `
+                  <select onchange="settleBet(this, ${bet.id})">
+                    <option value="">Settle</option>
+                    <option value="Win">Win</option>
+                    <option value="Loss">Loss</option>
+                  </select>
+                  <button class="btn btn-danger" onclick="removeBet(this)">Remove</button>
+                `
+                : `<button class="btn btn-danger" onclick="removeBet(this)">Remove</button>`
+            }
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function settleBet(selectEl, betId) {
+      const newOutcome = selectEl.value;
+      if (!newOutcome) return;
+
+      const betIndex = bets.findIndex(bet => bet.id === betId);
+      if (betIndex === -1) return;
+
+      const bet = bets[betIndex];
+      bet.outcome = newOutcome;
+
+      if (newOutcome === 'Win') {
+        bet.payout = bet.odds > 0
+          ? bet.stake + (bet.stake * (bet.odds / 100))
+          : bet.stake + (bet.stake / Math.abs(bet.odds)) * 100;
+        bet.profitLoss = bet.payout - bet.stake;
+      } else if (newOutcome === 'Loss') {
+        bet.payout = 0;
+        bet.profitLoss = -bet.stake;
+      }
+
+      localStorage.setItem('bettingData', JSON.stringify(bets));
+      location.reload();
+    }
+
+    function removeBet(button) {
+      const row = button.closest('tr');
+      const index = Array.from(row.parentNode.children).indexOf(row);
+      bets.splice(index, 1);
+      localStorage.setItem('bettingData', JSON.stringify(bets));
+      location.reload();
+    }
+
+    renderBets();
+  </script>
+</body>
+</html>
