@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Betting Performance Tracker</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 Betting Performance Tracker</h1>
+      <p>Track your bets meticulously for better bankroll management</p>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-value" id="totalBets">0</div><div>Total Bets</div></div>
+      <div class="stat"><div class="stat-value" id="winRate">0%</div><div>Win Rate</div></div>
+      <div class="stat"><div class="stat-value" id="totalStaked">$0</div><div>Total Staked</div></div>
+      <div class="stat"><div class="stat-value" id="totalReturn">$0</div><div>Total Return</div></div>
+      <div class="stat"><div class="stat-value" id="netProfit">$0</div><div>Net Profit/Loss</div></div>
+      <div class="stat"><div class="stat-value" id="roi">0%</div><div>ROI</div></div>
+    </div>
+
+    <div class="controls">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input type="date" id="date" required>
+        </div>
+        <div class="form-group">
+          <label for="sport">Sport</label>
+          <select id="sport" required>
+            <option value="">Select Sport</option>
+            <option value="Football">Football</option>
+            <option value="Basketball">Basketball</option>
+            <option value="Baseball">Baseball</option>
+            <option value="College Football">College Football</option>
+            <option value="Soccer">Soccer</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Boxing/MMA">Boxing/MMA</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="event">Event</label>
+          <input type="text" id="event" placeholder="Team A vs Team B" required>
+        </div>
+        <div class="form-group">
+          <label for="betType">Bet Type</label>
+          <select id="betType" required>
+            <option value="">Select Bet Type</option>
+            <option value="Moneyline">Moneyline</option>
+            <option value="Point Spread">Point Spread</option>
+            <option value="Over/Under">Over/Under</option>
+            <option value="Prop Bet">Prop Bet</option>
+            <option value="Parlay">Parlay</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="description">Bet Description</label>
+          <input type="text" id="description" placeholder="e.g. Eagles -3.5" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="odds">Odds</label>
+          <input type="text" id="odds" placeholder="+150 or -110" required>
+        </div>
+        <div class="form-group">
+          <label for="stake">Stake ($)</label>
+          <input type="number" id="stake" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="outcome">Outcome</label>
+          <select id="outcome" required>
+            <option value="">Select Outcome</option>
+            <option value="Win">Win</option>
+            <option value="Loss">Loss</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="payout">Payout ($)</label>
+          <input type="number" id="payout" readonly placeholder="Auto-calculated">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="note">Note</label>
+          <input type="text" id="note" placeholder="e.g. Sharp pick" />
+        </div>
+      </div>
+
+      <button class="btn" onclick="addBet()">Add Bet</button>
+      <button class="btn btn-danger" onclick="clearAllBets()">Clear All</button>
+    </div>
+
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 20px;">
+      <label>
+        Sort by:
+        <select id="sortBy" onchange="renderBets()">
+          <option value="date">Date</option>
+          <option value="sport">Sport</option>
+          <option value="event">Event</option>
+          <option value="betType">Bet Type</option>
+          <option value="outcome">Outcome</option>
+          <option value="profitLoss">Profit/Loss</option>
+        </select>
+      </label>
+
+      <label>
+        Order:
+        <select id="sortOrder" onchange="renderBets()">
+          <option value="desc">Descending</option>
+          <option value="asc">Ascending</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Sport</th>
+            <th>Event</th>
+            <th>Bet Type</th>
+            <th>Description</th>
+            <th>Odds</th>
+            <th>Stake</th>
+            <th>Outcome</th>
+            <th>Payout</th>
+            <th>Profit/Loss</th>
+            <th>Note</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="betsTable">
+          <!-- Bets rendered by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="download-section">
+      <button class="btn" onclick="exportToCSV()">📊 Export to CSV</button>
+      <p style="margin-top: 10px; color: #7f8c8d; font-size: 12px;">
+        This tracker runs in your browser. Data is saved locally and will persist between sessions.
+      </p>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
