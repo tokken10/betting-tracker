@@ -10,6 +10,56 @@ function saveBets() {
   localStorage.setItem('bettingData', JSON.stringify(bets));
 }
 
+function loadDemoData() {
+  bets = [
+    {
+      id: Date.now(),
+      date: '2023-09-01',
+      sport: 'Football',
+      event: 'Team A vs Team B',
+      betType: 'Moneyline',
+      odds: '+150',
+      stake: 50,
+      outcome: 'Win',
+      payout: calculatePayout('+150', 50),
+      profitLoss: calculatePayout('+150', 50) - 50,
+      description: 'Team A ML',
+      note: 'Demo'
+    },
+    {
+      id: Date.now() + 1,
+      date: '2023-09-02',
+      sport: 'Basketball',
+      event: 'Team C vs Team D',
+      betType: 'Point Spread',
+      odds: '-110',
+      stake: 40,
+      outcome: 'Loss',
+      payout: 0,
+      profitLoss: -40,
+      description: 'Team C -3.5',
+      note: ''
+    },
+    {
+      id: Date.now() + 2,
+      date: '2023-09-03',
+      sport: 'Baseball',
+      event: 'Team E vs Team F',
+      betType: 'Over/Under',
+      odds: '-105',
+      stake: 20,
+      outcome: 'Pending',
+      payout: 0,
+      profitLoss: 0,
+      description: 'Over 8.5',
+      note: ''
+    }
+  ];
+  saveBets();
+  renderBets();
+  updateStats();
+}
+
 function calculatePayout(odds, stake) {
   const numOdds = parseFloat(odds);
   if (isNaN(numOdds) || isNaN(stake)) return 0;
@@ -255,5 +305,9 @@ function exportToCSV() {
   window.URL.revokeObjectURL(url);
 }
 
-renderBets();
-updateStats();
+if (bets.length === 0 && new URLSearchParams(window.location.search).get('demo')) {
+  loadDemoData();
+} else {
+  renderBets();
+  updateStats();
+}
