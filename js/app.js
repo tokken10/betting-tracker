@@ -133,10 +133,8 @@ function addBet() {
   clearForm();
 }
 
-function removeBet(button) {
-  const row = button.closest('tr');
-  const index = Array.from(row.parentNode.children).indexOf(row);
-  bets.splice(index, 1);
+function removeBet(betId) {
+  bets = bets.filter(bet => bet.id !== betId);
   saveBets();
   renderBets();
   updateStats();
@@ -217,9 +215,9 @@ function renderBets() {
             <option value="Win">Win</option>
             <option value="Loss">Loss</option>
           </select>
-          <button class="btn btn-danger" onclick="removeBet(this)">Remove</button>
+          <button class="btn btn-danger" onclick="removeBet(${bet.id})">Remove</button>
         `
-        : `<button class="btn btn-danger" onclick="removeBet(this)">Remove</button>`
+        : `<button class="btn btn-danger" onclick="removeBet(${bet.id})">Remove</button>`
     }
   </td>
 `;
