@@ -75,6 +75,7 @@
             Win Streak: <span class="highlight" id="profile-win-streak">0</span>
           </div>
           <a href="index.html">← Back to Tracker</a>
+          <button class="btn" onclick="loadDemoData()">Load Demo Bets</button>
         </div>
       </div>
     </div>
@@ -279,6 +280,55 @@
       const row = button.closest('tr');
       const index = Array.from(row.parentNode.children).indexOf(row);
       bets.splice(index, 1);
+      localStorage.setItem('bettingData', JSON.stringify(bets));
+      location.reload();
+    }
+
+    function loadDemoData() {
+      bets = [
+        {
+          id: Date.now(),
+          date: '2023-09-01',
+          sport: 'Football',
+          event: 'Team A vs Team B',
+          betType: 'Moneyline',
+          odds: '+150',
+          stake: 50,
+          outcome: 'Win',
+          payout: 125,
+          profitLoss: 75,
+          description: 'Team A ML',
+          note: 'Demo'
+        },
+        {
+          id: Date.now() + 1,
+          date: '2023-09-02',
+          sport: 'Basketball',
+          event: 'Team C vs Team D',
+          betType: 'Point Spread',
+          odds: '-110',
+          stake: 40,
+          outcome: 'Loss',
+          payout: 0,
+          profitLoss: -40,
+          description: 'Team C -3.5',
+          note: ''
+        },
+        {
+          id: Date.now() + 2,
+          date: '2023-09-03',
+          sport: 'Baseball',
+          event: 'Team E vs Team F',
+          betType: 'Over/Under',
+          odds: '-105',
+          stake: 20,
+          outcome: 'Pending',
+          payout: 0,
+          profitLoss: 0,
+          description: 'Over 8.5',
+          note: ''
+        }
+      ];
       localStorage.setItem('bettingData', JSON.stringify(bets));
       location.reload();
     }
