@@ -205,7 +205,7 @@ function renderBets() {
   <td class="${profitClass}">${
     bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)
   }</td>
-  <td>${bet.note || ''}</td>
+  <td class="note-cell"><div class="note-content" title="${bet.note || ''}">${bet.note || ''}</div></td>
   <td>
     ${
       bet.outcome === 'Pending'
