@@ -167,6 +167,14 @@
     </div>
   </div>
 
+  <!-- Modal for viewing full text -->
+  <div id="textModal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation();">
+      <div id="modalText"></div>
+      <button class="btn modal-close" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
   <script src="js/app.js"></script>
 </body>
 </html>
