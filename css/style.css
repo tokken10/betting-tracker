@@ -134,6 +134,13 @@ td {
   border-bottom: 1px solid #ecf0f1;
 }
 
+.note-cell .note-content {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 tr:hover {
   background-color: #f8f9fa;
 }
