@@ -195,17 +195,29 @@ function renderBets() {
     row.innerHTML = `
   <td>${bet.date}</td>
   <td>${bet.sport}</td>
-  <td>${bet.event}</td>
+  <td class="event-cell">
+    <div class="event-content" title="${bet.event}" onclick="showFullText(${JSON.stringify(bet.event)})">
+      ${bet.event}
+    </div>
+  </td>
   <td>${bet.betType}</td>
-  <td>${bet.description || ''}</td>
+  <td class="description-cell">
+    <div class="description-content" title="${bet.description || ''}" onclick="showFullText(${JSON.stringify(bet.description || '')})">
+      ${bet.description || ''}
+    </div>
+  </td>
   <td>${bet.odds}</td>
   <td>$${bet.stake.toFixed(2)}</td>
   <td>${bet.outcome}</td>
   <td>$${bet.payout.toFixed(2)}</td>
-  <td class="${profitClass}">${
-    bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)
-  }</td>
-  <td class="note-cell"><div class="note-content" title="${bet.note || ''}">${bet.note || ''}</div></td>
+  <td class="${profitClass}">
+    ${bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)}
+  </td>
+  <td class="note-cell">
+    <div class="note-content" title="${bet.note || ''}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
+      ${bet.note || ''}
+    </div>
+  </td>
   <td>
     ${
       bet.outcome === 'Pending'
@@ -247,6 +259,15 @@ function settleBet(selectEl, betId) {
   saveBets();
   renderBets();
   updateStats();
+}
+
+function showFullText(text) {
+  document.getElementById('modalText').textContent = text || '';
+  document.getElementById('textModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('textModal').classList.remove('active');
 }
 
 function updateStats() {
