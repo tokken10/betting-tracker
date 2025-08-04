@@ -9,23 +9,10 @@
 <body>
   <div class="container">
     <!-- HEADER -->
-    <div class="header">
-      <h1>🎯 Performance Tracker</h1>
-      <p>Track your bets meticulously for better bankroll management</p>
-      <nav style="margin-top: 10px;">
-        <a href="profile.html" style="color: white; text-decoration: underline; font-size: 14px;">→ View Profile</a>
-      </nav>
-    </div>
+    <div id="include-header"></div>
 
     <!-- STATS -->
-    <div class="stats-bar">
-      <div class="stat"><div class="stat-value" id="totalBets">0</div><div>Total Bets</div></div>
-      <div class="stat"><div class="stat-value" id="winRate">0%</div><div>Win Rate</div></div>
-      <div class="stat"><div class="stat-value" id="totalStaked">$0</div><div>Total Staked</div></div>
-      <div class="stat"><div class="stat-value" id="totalReturn">$0</div><div>Total Return</div></div>
-      <div class="stat"><div class="stat-value" id="netProfit">$0</div><div>Net Profit/Loss</div></div>
-      <div class="stat"><div class="stat-value" id="roi">0%</div><div>ROI</div></div>
-    </div>
+    <div id="include-stats"></div>
 
     <!-- FORM -->
     <div class="controls">
@@ -111,52 +98,10 @@
     </div>
 
     <!-- SORT CONTROLS -->
-    <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 20px;">
-      <label>
-        Sort by:
-        <select id="sortBy" onchange="renderBets()">
-          <option value="date">Date</option>
-          <option value="sport">Sport</option>
-          <option value="event">Event</option>
-          <option value="betType">Bet Type</option>
-          <option value="outcome">Outcome</option>
-          <option value="profitLoss">Profit/Loss</option>
-        </select>
-      </label>
-
-      <label>
-        Order:
-        <select id="sortOrder" onchange="renderBets()">
-          <option value="desc">Descending</option>
-          <option value="asc">Ascending</option>
-        </select>
-      </label>
-    </div>
+    <div id="include-sort"></div>
 
     <!-- TABLE -->
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Sport</th>
-            <th>Event</th>
-            <th>Bet Type</th>
-            <th>Description</th>
-            <th>Odds</th>
-            <th>Stake</th>
-            <th>Outcome</th>
-            <th>Payout</th>
-            <th>Profit/Loss</th>
-            <th>Note</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="betsTable">
-          <!-- Populated by JS -->
-        </tbody>
-      </table>
-    </div>
+    <div id="include-table"></div>
 
     <!-- DOWNLOAD -->
     <div class="download-section">
@@ -167,14 +112,10 @@
     </div>
   </div>
 
-  <!-- Modal for viewing full text -->
-  <div id="textModal" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation();">
-      <div id="modalText"></div>
-      <button class="btn modal-close" onclick="closeModal()">Close</button>
-    </div>
-  </div>
+  <!-- MODAL -->
+  <div id="include-modal"></div>
 
+  <script src="js/loadShared.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,21 @@
+<div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 20px;">
+  <label>
+    Sort by:
+    <select id="sortBy" onchange="renderBets()">
+      <option value="date">Date</option>
+      <option value="sport">Sport</option>
+      <option value="event">Event</option>
+      <option value="betType">Bet Type</option>
+      <option value="outcome">Outcome</option>
+      <option value="profitLoss">Profit/Loss</option>
+    </select>
+  </label>
+
+  <label>
+    Order:
+    <select id="sortOrder" onchange="renderBets()">
+      <option value="desc">Descending</option>
+      <option value="asc">Ascending</option>
+    </select>
+  </label>
+</div>

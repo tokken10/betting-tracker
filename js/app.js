@@ -1,10 +1,24 @@
 let bets = JSON.parse(localStorage.getItem('bettingData')) || [];
 
-document.getElementById('date').valueAsDate = new Date();
+const outcomeEl = document.getElementById('outcome');
+const oddsEl = document.getElementById('odds');
+const stakeEl = document.getElementById('stake');
 
-document.getElementById('outcome').addEventListener('change', updatePayoutPreview);
-document.getElementById('odds').addEventListener('input', updatePayoutPreview);
-document.getElementById('stake').addEventListener('input', updatePayoutPreview);
+if (outcomeEl && oddsEl && stakeEl) {
+  outcomeEl.addEventListener('change', updatePayoutPreview);
+  oddsEl.addEventListener('input', updatePayoutPreview);
+  stakeEl.addEventListener('input', updatePayoutPreview);
+}
+
+// ✅ Delay rendering until shared HTML is loaded
+window.addEventListener('shared:loaded', () => {
+  if (bets.length === 0 && new URLSearchParams(window.location.search).get('demo')) {
+    loadDemoData();
+  } else {
+    renderBets();
+    updateStats();
+  }
+});
 
 function saveBets() {
   localStorage.setItem('bettingData', JSON.stringify(bets));
@@ -70,10 +84,12 @@ function calculatePayout(odds, stake) {
 }
 
 function updatePayoutPreview() {
-  const odds = parseFloat(document.getElementById('odds').value);
-  const stake = parseFloat(document.getElementById('stake').value);
-  const outcome = document.getElementById('outcome').value;
+  const odds = parseFloat(document.getElementById('odds')?.value);
+  const stake = parseFloat(document.getElementById('stake')?.value);
+  const outcome = document.getElementById('outcome')?.value;
   const payoutInput = document.getElementById('payout');
+
+  if (!payoutInput) return;
 
   if (outcome === 'Win' && !isNaN(odds) && !isNaN(stake)) {
     payoutInput.value = calculatePayout(odds, stake).toFixed(2);
@@ -161,16 +177,18 @@ function clearForm() {
 
 function renderBets() {
   const tbody = document.getElementById('betsTable');
+  if (!tbody) return;
+
   tbody.innerHTML = '';
 
   const sortBy = document.getElementById('sortBy')?.value || 'date';
   const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
 
-  const sortedBets = [...bets].sort((a, b) => {
+  const sorted = [...bets].sort((a, b) => {
     let aVal = a[sortBy];
     let bVal = b[sortBy];
 
-    if (sortBy === 'profitLoss' || sortBy === 'stake' || sortBy === 'payout') {
+    if (['profitLoss', 'stake', 'payout'].includes(sortBy)) {
       aVal = parseFloat(aVal);
       bVal = parseFloat(bVal);
     }
@@ -185,7 +203,7 @@ function renderBets() {
     return 0;
   });
 
-  sortedBets.forEach(bet => {
+  sorted.forEach(bet => {
     const row = document.createElement('tr');
     row.className = bet.outcome.toLowerCase();
 
@@ -193,46 +211,46 @@ function renderBets() {
     const profitSymbol = bet.profitLoss > 0 ? '+' : '';
 
     row.innerHTML = `
-  <td>${bet.date}</td>
-  <td>${bet.sport}</td>
-  <td class="event-cell">
-    <div class="event-content" title="${bet.event}" onclick="showFullText(${JSON.stringify(bet.event)})">
-      ${bet.event}
-    </div>
-  </td>
-  <td>${bet.betType}</td>
-  <td class="description-cell">
-    <div class="description-content" title="${bet.description || ''}" onclick="showFullText(${JSON.stringify(bet.description || '')})">
-      ${bet.description || ''}
-    </div>
-  </td>
-  <td>${bet.odds}</td>
-  <td>$${bet.stake.toFixed(2)}</td>
-  <td>${bet.outcome}</td>
-  <td>$${bet.payout.toFixed(2)}</td>
-  <td class="${profitClass}">
-    ${bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)}
-  </td>
-  <td class="note-cell">
-    <div class="note-content" title="${bet.note || ''}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
-      ${bet.note || ''}
-    </div>
-  </td>
-  <td>
-    ${
-      bet.outcome === 'Pending'
-        ? `
-          <select onchange="settleBet(this, ${bet.id})">
-            <option value="">Settle</option>
-            <option value="Win">Win</option>
-            <option value="Loss">Loss</option>
-          </select>
-          <button class="btn btn-danger" onclick="removeBet(${bet.id})">Remove</button>
-        `
-        : `<button class="btn btn-danger" onclick="removeBet(${bet.id})">Remove</button>`
-    }
-  </td>
-`;
+      <td>${bet.date}</td>
+      <td>${bet.sport}</td>
+      <td class="event-cell">
+        <div class="event-content" title="${bet.event}" onclick="showFullText(${JSON.stringify(bet.event)})">
+          ${bet.event}
+        </div>
+      </td>
+      <td>${bet.betType}</td>
+      <td class="description-cell">
+        <div class="description-content" title="${bet.description || ''}" onclick="showFullText(${JSON.stringify(bet.description || '')})">
+          ${bet.description || ''}
+        </div>
+      </td>
+      <td>${bet.odds}</td>
+      <td>$${bet.stake.toFixed(2)}</td>
+      <td>${bet.outcome}</td>
+      <td>$${bet.payout.toFixed(2)}</td>
+      <td class="${profitClass}">
+        ${bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)}
+      </td>
+      <td class="note-cell">
+        <div class="note-content" title="${bet.note || ''}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
+          ${bet.note || ''}
+        </div>
+      </td>
+      <td>
+        ${
+          bet.outcome === 'Pending'
+            ? `
+              <select onchange="settleBet(this, ${bet.id})">
+                <option value="">Settle</option>
+                <option value="Win">Win</option>
+                <option value="Loss">Loss</option>
+              </select>
+              <button class="btn btn-danger" onclick="removeBet(${bet.id})">Remove</button>
+            `
+            : `<button class="btn btn-danger" onclick="removeBet(${bet.id})">Remove</button>`
+        }
+      </td>
+    `;
 
     tbody.appendChild(row);
   });
@@ -242,7 +260,7 @@ function settleBet(selectEl, betId) {
   const newOutcome = selectEl.value;
   if (!newOutcome) return;
 
-  const betIndex = bets.findIndex(bet => bet.id === betId);
+  const betIndex = bets.findIndex(b => b.id === betId);
   if (betIndex === -1) return;
 
   const bet = bets[betIndex];
@@ -261,38 +279,68 @@ function settleBet(selectEl, betId) {
   updateStats();
 }
 
+function updateStats() {
+  const settled = bets.filter(b => b.outcome === 'Win' || b.outcome === 'Loss');
+  const wins = settled.filter(b => b.outcome === 'Win').length;
+  const totalStaked = settled.reduce((sum, b) => sum + b.stake, 0);
+  const totalReturn = settled.reduce((sum, b) => sum + b.payout, 0);
+  const netProfit = totalReturn - totalStaked;
+  const roi = totalStaked > 0 ? (netProfit / totalStaked * 100).toFixed(1) : 0;
+  const avgStake = settled.length ? (totalStaked / settled.length).toFixed(2) : '0.00';
+
+  const el = (id) => document.getElementById(id);
+
+  if (el('totalBets')) el('totalBets').textContent = bets.length;
+  if (el('winRate')) el('winRate').textContent = settled.length ? ((wins / settled.length) * 100).toFixed(1) + '%' : '0%';
+  if (el('totalStaked')) el('totalStaked').textContent = '$' + totalStaked.toFixed(2);
+  if (el('totalReturn')) el('totalReturn').textContent = '$' + totalReturn.toFixed(2);
+
+  if (el('netProfit')) {
+    el('netProfit').textContent = (netProfit >= 0 ? '+' : '') + '$' + netProfit.toFixed(2);
+    el('netProfit').className = 'stat-value ' + (netProfit >= 0 ? 'positive' : 'negative');
+  }
+
+  if (el('roi')) {
+    el('roi').textContent = (roi >= 0 ? '+' : '') + roi + '%';
+    el('roi').className = 'stat-value ' + (roi >= 0 ? 'positive' : 'negative');
+  }
+
+  if (el('profile-total-bets')) el('profile-total-bets').textContent = bets.length;
+  if (el('profile-avg-stake')) el('profile-avg-stake').textContent = '$' + avgStake;
+
+  const profitBySport = {};
+  for (let b of settled) {
+    if (!profitBySport[b.sport]) profitBySport[b.sport] = 0;
+    profitBySport[b.sport] += b.profitLoss;
+  }
+  const bestSport = Object.entries(profitBySport).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+  if (el('profile-best-sport')) el('profile-best-sport').textContent = bestSport;
+
+  let streak = 0;
+  let maxStreak = 0;
+  for (let b of settled) {
+    if (b.outcome === 'Win') {
+      streak++;
+      if (streak > maxStreak) maxStreak = streak;
+    } else {
+      streak = 0;
+    }
+  }
+  if (el('profile-win-streak')) el('profile-win-streak').textContent = maxStreak;
+}
+
 function showFullText(text) {
-  document.getElementById('modalText').textContent = text || '';
-  document.getElementById('textModal').classList.add('active');
+  const modal = document.getElementById('textModal');
+  const modalText = document.getElementById('modalText');
+  if (modal && modalText) {
+    modalText.textContent = text || '';
+    modal.classList.add('active');
+  }
 }
 
 function closeModal() {
-  document.getElementById('textModal').classList.remove('active');
-}
-
-function updateStats() {
-  const settledBets = bets.filter(bet => bet.outcome === 'Win' || bet.outcome === 'Loss');
-
-  const totalBets = bets.length;
-  const wins = settledBets.filter(bet => bet.outcome === 'Win').length;
-  const winRate = settledBets.length > 0 ? (wins / settledBets.length * 100).toFixed(1) : 0;
-  const totalStaked = settledBets.reduce((sum, bet) => sum + bet.stake, 0);
-  const totalReturn = settledBets.reduce((sum, bet) => sum + bet.payout, 0);
-  const netProfit = totalReturn - totalStaked;
-  const roi = totalStaked > 0 ? (netProfit / totalStaked * 100).toFixed(1) : 0;
-
-  document.getElementById('totalBets').textContent = totalBets;
-  document.getElementById('winRate').textContent = winRate + '%';
-  document.getElementById('totalStaked').textContent = '$' + totalStaked.toFixed(2);
-  document.getElementById('totalReturn').textContent = '$' + totalReturn.toFixed(2);
-
-  const netProfitEl = document.getElementById('netProfit');
-  netProfitEl.textContent = (netProfit >= 0 ? '+' : '') + '$' + netProfit.toFixed(2);
-  netProfitEl.style.color = netProfit >= 0 ? '#27ae60' : '#e74c3c';
-
-  const roiEl = document.getElementById('roi');
-  roiEl.textContent = (roi >= 0 ? '+' : '') + roi + '%';
-  roiEl.style.color = roi >= 0 ? '#27ae60' : '#e74c3c';
+  const modal = document.getElementById('textModal');
+  if (modal) modal.classList.remove('active');
 }
 
 function exportToCSV() {
@@ -322,11 +370,4 @@ function exportToCSV() {
   a.download = 'betting_tracker_' + new Date().toISOString().split('T')[0] + '.csv';
   a.click();
   window.URL.revokeObjectURL(url);
-}
-
-if (bets.length === 0 && new URLSearchParams(window.location.search).get('demo')) {
-  loadDemoData();
-} else {
-  renderBets();
-  updateStats();
 }
