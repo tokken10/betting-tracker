@@ -27,6 +27,8 @@ body {
     position: absolute;
     top: 20px;
     right: 20px;
+    z-index: 1;
+
   }
 
   .header .top-nav a {
@@ -35,6 +37,7 @@ body {
     font-size: 14px;
     margin-left: 15px;
   }
+
  .header .learn-more-link {
     color: white;
     text-decoration: underline;
@@ -46,6 +49,16 @@ body {
 .header h1 {
   margin: 0;
   font-size: 24px;
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding-top: 60px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
 }
 
 .stats-bar {
