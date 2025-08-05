@@ -15,12 +15,26 @@ body {
   overflow: hidden;
 }
 
-.header {
-  background: linear-gradient(135deg, #2c3e50, #3498db);
-  color: white;
-  padding: 20px;
-  text-align: center;
-}
+  .header {
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+  }
+
+  .header .top-nav {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
+  .header .top-nav a {
+    color: white;
+    text-decoration: underline;
+    font-size: 14px;
+    margin-left: 15px;
+  }
 
 .header h1 {
   margin: 0;

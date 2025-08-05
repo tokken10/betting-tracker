@@ -28,11 +28,7 @@ async function loadSharedComponents() {
           headerContainer.insertAdjacentHTML('beforeend', profileHTML);
         }
 
-        // Remove navigation link back to profile since we're already here
-        const profileNav = target.querySelector('nav');
-        if (profileNav) profileNav.remove();
-
-        // Optionally hide default header title/subtitle
+          // Optionally hide default header title/subtitle
         const title = document.getElementById('page-title');
         const subtitle = document.getElementById('page-subtitle');
         if (title) title.style.display = 'none';
