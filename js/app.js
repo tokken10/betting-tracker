@@ -80,7 +80,12 @@ nfl,2025-08-01T00:00:00.000Z,LAC @ DET,LAC @ DET: u33.5 -110,under,game,-110,33.
     const stake = parseFloat(moneyWagered);
     const profitLoss = parseFloat(moneyNet);
     const outcome = result.trim().charAt(0).toUpperCase() + result.trim().slice(1);
-    const formattedOdds = odds.startsWith('-') || odds.startsWith('+') ? odds : (parseFloat(odds) > 0 ? `+${odds}` : odds);
+    const numOdds = parseFloat(odds);
+    const formattedOdds = (odds.startsWith('-') || odds.startsWith('+') || isNaN(numOdds))
+      ? odds
+      : numOdds >= 100
+        ? `+${odds}`
+        : odds;
     return {
       id: Date.now() + index,
       date,
@@ -105,21 +110,29 @@ function calculatePayout(odds, stake) {
   const numOdds = parseFloat(odds);
   if (isNaN(numOdds) || isNaN(stake)) return 0;
 
+  const isAmerican = odds.startsWith('+') || odds.startsWith('-') || Math.abs(numOdds) >= 100;
+
+  if (!isAmerican) {
+    // Decimal odds
+    return stake * numOdds;
+  }
+
+  // American odds
   return numOdds > 0
     ? stake + (stake * (numOdds / 100))
     : stake + (stake / Math.abs(numOdds)) * 100;
 }
 
 function updatePayoutPreview() {
-  const odds = parseFloat(document.getElementById('odds')?.value);
+  const oddsValue = document.getElementById('odds')?.value;
   const stake = parseFloat(document.getElementById('stake')?.value);
   const outcome = document.getElementById('outcome')?.value;
   const payoutInput = document.getElementById('payout');
 
   if (!payoutInput) return;
 
-  if (outcome === 'Win' && !isNaN(odds) && !isNaN(stake)) {
-    payoutInput.value = calculatePayout(odds, stake).toFixed(2);
+  if (outcome === 'Win' && oddsValue && !isNaN(stake)) {
+    payoutInput.value = calculatePayout(oddsValue, stake).toFixed(2);
   } else if (outcome === 'Loss') {
     payoutInput.value = '0.00';
   } else {
@@ -132,7 +145,11 @@ function addBet() {
   const sport = document.getElementById('sport').value;
   const event = document.getElementById('event').value;
   const betType = document.getElementById('betType').value;
-  const odds = document.getElementById('odds').value;
+  const oddsInput = document.getElementById('odds').value.trim();
+  const numOdds = parseFloat(oddsInput);
+  const odds = (!oddsInput.startsWith('+') && !oddsInput.startsWith('-') && !isNaN(numOdds) && Math.abs(numOdds) >= 100)
+    ? `+${oddsInput}`
+    : oddsInput;
   const stake = parseFloat(document.getElementById('stake').value) || 0;
   const outcome = document.getElementById('outcome').value;
   const description = document.getElementById('description').value.trim();
