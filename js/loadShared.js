@@ -31,8 +31,10 @@ async function loadSharedComponents() {
           // Optionally hide default header title/subtitle
         const title = document.getElementById('page-title');
         const subtitle = document.getElementById('page-subtitle');
+        const learnMore = document.getElementById('learn-more-link');
         if (title) title.style.display = 'none';
         if (subtitle) subtitle.style.display = 'none';
+        if (learnMore) learnMore.style.display = 'none';
       }
     } catch (err) {
       console.error(`Failed to load ${key}:`, err.message);
