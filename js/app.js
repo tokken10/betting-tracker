@@ -29,7 +29,7 @@ function loadDemoData() {
     {
       id: Date.now(),
       date: '2023-09-01',
-      sport: 'Football',
+      sport: 'NFL Football',
       event: 'Team A vs Team B',
       betType: 'Moneyline',
       odds: '+150',
@@ -43,7 +43,7 @@ function loadDemoData() {
     {
       id: Date.now() + 1,
       date: '2023-09-02',
-      sport: 'Basketball',
+      sport: 'NBA Basketball',
       event: 'Team C vs Team D',
       betType: 'Point Spread',
       odds: '-110',
