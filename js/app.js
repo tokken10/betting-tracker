@@ -26,8 +26,6 @@ function saveBets() {
 
 function loadDemoData() {
   const csv = `League,Start Time,Game,Pick Desc,Type,Period,Odds,Odds/Spread/Total,Result,Units Wagered,Units Net,Money Wagered,Money Net,Tag
-
-
 ncaaf,2025-08-23T08:00:00.000Z,Cc,Cc: u8.5 +120,under,game,120,8.5,pending,110,0,110,0,
 ncaaf,2025-08-23T09:00:00.000Z,To Make the Playoffs 2025-26,Miami Florida To Make The Playoffs,future,game,N/A,,pending,110,0,110,0,
 ncaaf,2025-08-23T10:00:00.000Z,Miami FL ACC Regular Season Wins 2025-26,Miami FL ACC Regular Season Wins 2025-26: No -250,future,game,-250,,pending,110,0,110,0,
