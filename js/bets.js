@@ -22,8 +22,7 @@ export function calculatePayout(odds, stake) {
 }
 
 export function loadDemoData() {
-  const csv = `League,Start Time,Game,Pick Desc,Type,Period,Odds,Odds/Spread/Total,Result,Units Wagered,Units Net,Money Wagered,
-Money Net,Tag
+  const csv = `League,Start Time,Game,Pick Desc,Type,Period,Odds,Odds/Spread/Total,Result,Units Wagered,Units Net,Money Wagered,Money Net,Tag
 ncaaf,2025-08-23T08:00:00.000Z,Cc,Cc: u8.5 +120,under,game,120,8.5,pending,110,0,110,0,
 ncaaf,2025-08-23T09:00:00.000Z,To Make the Playoffs 2025-26,Miami Florida To Make The Playoffs,future,game,N/A,,pending,110,0,110,0,
 ncaaf,2025-08-23T10:00:00.000Z,Miami FL ACC Regular Season Wins 2025-26,Miami FL ACC Regular Season Wins 2025-26: No -250,future,game,-250,,pending,110,0,110,0,
@@ -36,7 +35,7 @@ ncaaf,2025-08-31T15:00:00.000Z,Virginia Tech @ South Carolina (#13),Virginia Tec
 ncaaf,2025-08-31T19:30:00.000Z,Notre Dame (#5) @ Miami Florida (#10),Notre Dame (#5) -2.5 -110,spread_away,game,-110,-2.5,pending,110,0,110,0,
 nfl,2025-09-07T13:00:00.000Z,49ers Regular Season Wins 2025-26,49ers Regular Season Wins 2025-26: u10.5 -120,under,game,-120,10.5,pending,110,0,110,0,`;
 
-  const lines = csv.trim().split('\n').slice(1);
+  const lines = csv.trim().split(/\n/).slice(1);
   bets = lines.map((line, index) => {
     const [league, startTime, game, pickDesc, type, period, odds, lineValue, result, unitsWagered, unitsNet, moneyWagered, moneyNet, tag] = line.split(',');
     const date = startTime.split('T')[0];
