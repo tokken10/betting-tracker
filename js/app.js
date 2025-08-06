@@ -71,7 +71,18 @@ mlb,2025-07-25T22:40:00.000Z,ARI @ PIT,ARI -111,ml_away,game,-111,-111,win,111,1
 mlb,2025-07-25T23:05:00.000Z,PHI @ NYY,NYY -156,ml_home,game,-156,-156,loss,156,-156,156,-156,
 mlb,2025-07-26T00:05:00.000Z,ATL @ TEX,TEX -1.5 +140,spread_home,game,140,-1.5,win,71.43,100.002,71.43,100.002,
 mlb,2025-07-26T02:15:00.000Z,NYM @ SF,SF -136,ml_home,game,-136,-136,loss,136,-136,136,-136,
-nfl,2025-08-01T00:00:00.000Z,LAC @ DET,LAC @ DET: u33.5 -110,under,game,-110,33.5,loss,110,-110,110,-110,`;
+nfl,2025-08-01T00:00:00.000Z,LAC @ DET,LAC @ DET: u33.5 -110,under,game,-110,33.5,loss,110,-110,110,-110,
+ncaaf,2025-08-23T08:00:00.000Z,Cc,Cc: u8.5 +120,under,game,120,8.5,pending,110,0,110,0,
+ncaaf,2025-08-23T09:00:00.000Z,To Make the Playoffs 2025-26,Miami Florida To Make The Playoffs,future,game,N/A,,pending,110,0,110,0,
+ncaaf,2025-08-23T10:00:00.000Z,Miami FL ACC Regular Season Wins 2025-26,Miami FL ACC Regular Season Wins 2025-26: No -250,future,game,-250,,pending,110,0,110,0,
+ncaaf,2025-08-23T12:00:00.000Z,Iowa State (#21) @ Kansas State (#20),Iowa State (#21) +3.5 -115,spread_away,game,-115,3.5,pending,110,0,110,0,
+ncaaf,2025-08-30T14:30:00.000Z,Old Dominion @ Indiana (#19),Indiana (#19) -23.5 -110,spread_home,game,-110,-23.5,pending,110,0,110,0,
+ncaaf,2025-08-30T15:30:00.000Z,Alabama (#8) @ Florida State,Alabama (#8) @ Florida State: o50.5 -110,over,game,-110,50.5,pending,110,0,110,0,
+ncaaf,2025-08-30T15:30:00.000Z,Nevada @ Penn State (#3),Penn State (#3) -44.5 -115,spread_home,game,-115,-44.5,pending,110,0,110,0,
+ncaaf,2025-08-30T19:30:00.000Z,LSU (#9) @ Clemson (#6),LSU (#9) @ Clemson (#6): u57 -105,under,game,-105,57,pending,110,0,110,0,
+ncaaf,2025-08-31T15:00:00.000Z,Virginia Tech @ South Carolina (#13),Virginia Tech +8.5 -110,spread_away,game,-110,8.5,pending,110,0,110,0,
+ncaaf,2025-08-31T19:30:00.000Z,Notre Dame (#5) @ Miami Florida (#10),Notre Dame (#5) -2.5 -110,spread_away,game,-110,-2.5,pending,110,0,110,0,
+nfl,2025-09-07T13:00:00.000Z,49ers Regular Season Wins 2025-26,49ers Regular Season Wins 2025-26: u10.5 -120,under,game,-120,10.5,pending,110,0,110,0,`;
 
   const lines = csv.trim().split('\n').slice(1);
   bets = lines.map((line, index) => {
