@@ -1,4 +1,13 @@
-let bets = JSON.parse(localStorage.getItem('bettingData')) || [];
+import {
+  bets,
+  addBet as addBetData,
+  removeBet as removeBetData,
+  clearBets,
+  settleBet as settleBetData,
+  loadDemoData as loadDemoBets,
+  calculatePayout,
+  exportToCSV
+} from './bets.js';
 
 const outcomeEl = document.getElementById('outcome');
 const oddsEl = document.getElementById('odds');
@@ -10,92 +19,21 @@ if (outcomeEl && oddsEl && stakeEl) {
   stakeEl.addEventListener('input', updatePayoutPreview);
 }
 
-// ✅ Delay rendering until shared HTML is loaded
+// Wait for shared HTML components to load before rendering
 window.addEventListener('shared:loaded', () => {
   if (bets.length === 0 && new URLSearchParams(window.location.search).get('demo')) {
-    loadDemoData();
-  } else {
-    renderBets();
-    updateStats();
+    loadDemoBets();
   }
-});
-
-function saveBets() {
-  localStorage.setItem('bettingData', JSON.stringify(bets));
-}
-
-function loadDemoData() {
-  const csv = `League,Start Time,Game,Pick Desc,Type,Period,Odds,Odds/Spread/Total,Result,Units Wagered,Units Net,Money Wagered,Money Net,Tag
-ncaaf,2025-08-23T08:00:00.000Z,Cc,Cc: u8.5 +120,under,game,120,8.5,pending,110,0,110,0,
-ncaaf,2025-08-23T09:00:00.000Z,To Make the Playoffs 2025-26,Miami Florida To Make The Playoffs,future,game,N/A,,pending,110,0,110,0,
-ncaaf,2025-08-23T10:00:00.000Z,Miami FL ACC Regular Season Wins 2025-26,Miami FL ACC Regular Season Wins 2025-26: No -250,future,game,-250,,pending,110,0,110,0,
-ncaaf,2025-08-23T12:00:00.000Z,Iowa State (#21) @ Kansas State (#20),Iowa State (#21) +3.5 -115,spread_away,game,-115,3.5,pending,110,0,110,0,
-ncaaf,2025-08-30T14:30:00.000Z,Old Dominion @ Indiana (#19),Indiana (#19) -23.5 -110,spread_home,game,-110,-23.5,pending,110,0,110,0,
-ncaaf,2025-08-30T15:30:00.000Z,Alabama (#8) @ Florida State,Alabama (#8) @ Florida State: o50.5 -110,over,game,-110,50.5,pending,110,0,110,0,
-ncaaf,2025-08-30T15:30:00.000Z,Nevada @ Penn State (#3),Penn State (#3) -44.5 -115,spread_home,game,-115,-44.5,pending,110,0,110,0,
-ncaaf,2025-08-30T19:30:00.000Z,LSU (#9) @ Clemson (#6),LSU (#9) @ Clemson (#6): u57 -105,under,game,-105,57,pending,110,0,110,0,
-ncaaf,2025-08-31T15:00:00.000Z,Virginia Tech @ South Carolina (#13),Virginia Tech +8.5 -110,spread_away,game,-110,8.5,pending,110,0,110,0,
-ncaaf,2025-08-31T19:30:00.000Z,Notre Dame (#5) @ Miami Florida (#10),Notre Dame (#5) -2.5 -110,spread_away,game,-110,-2.5,pending,110,0,110,0,
-nfl,2025-09-07T13:00:00.000Z,49ers Regular Season Wins 2025-26,49ers Regular Season Wins 2025-26: u10.5 -120,under,game,-120,10.5,pending,110,0,110,0,`;
-
-  const lines = csv.trim().split('\n').slice(1);
-  bets = lines.map((line, index) => {
-    const [league, startTime, game, pickDesc, type, period, odds, lineValue, result, unitsWagered, unitsNet, moneyWagered, moneyNet, tag] = line.split(',');
-    const date = startTime.split('T')[0];
-    const stake = parseFloat(moneyWagered);
-    const profitLoss = parseFloat(moneyNet);
-    const outcome = result.trim().charAt(0).toUpperCase() + result.trim().slice(1);
-    const numOdds = parseFloat(odds);
-    const formattedOdds = (odds.startsWith('-') || odds.startsWith('+') || isNaN(numOdds))
-      ? odds
-      : numOdds >= 100
-        ? `+${odds}`
-        : odds;
-    return {
-      id: Date.now() + index,
-      date,
-      sport: league.toUpperCase(),
-      event: game,
-      betType: type.replace(/_/g, ' '),
-      odds: formattedOdds,
-      stake,
-      outcome,
-      payout: outcome === 'Win' ? stake + profitLoss : 0,
-      profitLoss,
-      description: pickDesc,
-      note: tag || ''
-    };
-  });
-  saveBets();
   renderBets();
   updateStats();
-}
-
-function calculatePayout(odds, stake) {
-  const numOdds = parseFloat(odds);
-  if (isNaN(numOdds) || isNaN(stake)) return 0;
-
-  const isAmerican = odds.startsWith('+') || odds.startsWith('-') || Math.abs(numOdds) >= 100;
-
-  if (!isAmerican) {
-    // Decimal odds
-    return stake * numOdds;
-  }
-
-  // American odds
-  return numOdds > 0
-    ? stake + (stake * (numOdds / 100))
-    : stake + (stake / Math.abs(numOdds)) * 100;
-}
+});
 
 function updatePayoutPreview() {
-  const oddsValue = document.getElementById('odds')?.value;
-  const stake = parseFloat(document.getElementById('stake')?.value);
-  const outcome = document.getElementById('outcome')?.value;
+  const oddsValue = oddsEl?.value;
+  const stake = parseFloat(stakeEl?.value);
+  const outcome = outcomeEl?.value;
   const payoutInput = document.getElementById('payout');
-
   if (!payoutInput) return;
-
   if (outcome === 'Win' && oddsValue && !isNaN(stake)) {
     payoutInput.value = calculatePayout(oddsValue, stake).toFixed(2);
   } else if (outcome === 'Loss') {
@@ -105,7 +43,7 @@ function updatePayoutPreview() {
   }
 }
 
-function addBet() {
+function handleAddBet() {
   const date = document.getElementById('date').value;
   const sport = document.getElementById('sport').value;
   const event = document.getElementById('event').value;
@@ -151,37 +89,32 @@ function addBet() {
     note
   };
 
-  bets.push(bet);
-  saveBets();
+  addBetData(bet);
   renderBets();
   updateStats();
   clearForm();
 }
 
-function removeBet(betId) {
-  bets = bets.filter(bet => bet.id !== betId);
-  saveBets();
+function handleRemoveBet(id) {
+  removeBetData(id);
   renderBets();
   updateStats();
 }
 
-function clearAllBets() {
+function handleClearAll() {
   if (confirm('Are you sure you want to clear all betting data? This cannot be undone.')) {
-    bets = [];
-    saveBets();
+    clearBets();
     renderBets();
     updateStats();
   }
 }
 
 function clearForm() {
-  document.getElementById('event').value = '';
-  document.getElementById('odds').value = '';
-  document.getElementById('stake').value = '';
-  document.getElementById('payout').value = '';
-  document.getElementById('outcome').value = '';
-  document.getElementById('description').value = '';
-  document.getElementById('note').value = '';
+  const fields = ['event', 'odds', 'stake', 'payout', 'outcome', 'description', 'note'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
 }
 
 function renderBets() {
@@ -265,25 +198,10 @@ function renderBets() {
   });
 }
 
-function settleBet(selectEl, betId) {
+function handleSettleBet(selectEl, betId) {
   const newOutcome = selectEl.value;
   if (!newOutcome) return;
-
-  const betIndex = bets.findIndex(b => b.id === betId);
-  if (betIndex === -1) return;
-
-  const bet = bets[betIndex];
-  bet.outcome = newOutcome;
-
-  if (newOutcome === 'Win') {
-    bet.payout = calculatePayout(bet.odds, bet.stake);
-    bet.profitLoss = bet.payout - bet.stake;
-  } else if (newOutcome === 'Loss') {
-    bet.payout = 0;
-    bet.profitLoss = -bet.stake;
-  }
-
-  saveBets();
+  settleBetData(betId, newOutcome);
   renderBets();
   updateStats();
 }
@@ -297,7 +215,7 @@ function updateStats() {
   const roi = totalStaked > 0 ? (netProfit / totalStaked * 100).toFixed(1) : 0;
   const avgStake = settled.length ? (totalStaked / settled.length).toFixed(2) : '0.00';
 
-  const el = (id) => document.getElementById(id);
+  const el = id => document.getElementById(id);
 
   if (el('totalBets')) el('totalBets').textContent = bets.length;
   if (el('winRate')) el('winRate').textContent = settled.length ? ((wins / settled.length) * 100).toFixed(1) + '%' : '0%';
@@ -352,31 +270,12 @@ function closeModal() {
   if (modal) modal.classList.remove('active');
 }
 
-function exportToCSV() {
-  const headers = ['Date', 'Sport', 'Event', 'Bet Type', 'Odds', 'Stake', 'Outcome', 'Payout', 'Profit/Loss', 'Description', 'Note'];
-
-  const csvContent = [
-    headers.join(','),
-    ...bets.map(bet => [
-      bet.date,
-      bet.sport,
-      bet.event,
-      bet.betType,
-      bet.odds,
-      bet.stake.toFixed(2),
-      bet.outcome,
-      bet.payout.toFixed(2),
-      bet.outcome === 'Pending' ? '' : bet.profitLoss.toFixed(2),
-      `"${bet.description || ''}"`,
-      `"${bet.note || ''}"`
-    ].join(','))
-  ].join('\n');
-
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'betting_tracker_' + new Date().toISOString().split('T')[0] + '.csv';
-  a.click();
-  window.URL.revokeObjectURL(url);
-}
+// Expose functions globally for HTML event handlers
+window.addBet = handleAddBet;
+window.removeBet = handleRemoveBet;
+window.clearAllBets = handleClearAll;
+window.loadDemoData = () => { loadDemoBets(); renderBets(); updateStats(); };
+window.settleBet = handleSettleBet;
+window.showFullText = showFullText;
+window.closeModal = closeModal;
+window.exportToCSV = exportToCSV;
