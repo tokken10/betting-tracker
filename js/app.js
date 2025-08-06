@@ -4,7 +4,7 @@ import {
   removeBet as removeBetData,
   clearBets,
   settleBet as settleBetData,
-  loadDemoData,
+  loadDemoData as loadDemoBets,
   calculatePayout,
   exportToCSV
 } from './bets.js';
@@ -22,7 +22,7 @@ if (outcomeEl && oddsEl && stakeEl) {
 // Wait for shared HTML components to load before rendering
 window.addEventListener('shared:loaded', () => {
   if (bets.length === 0 && new URLSearchParams(window.location.search).get('demo')) {
-    loadDemoData();
+    loadDemoBets();
   }
   renderBets();
   updateStats();
@@ -274,7 +274,7 @@ function closeModal() {
 window.addBet = handleAddBet;
 window.removeBet = handleRemoveBet;
 window.clearAllBets = handleClearAll;
-window.loadDemoData = () => { loadDemoData(); renderBets(); updateStats(); };
+window.loadDemoData = () => { loadDemoBets(); renderBets(); updateStats(); };
 window.settleBet = handleSettleBet;
 window.showFullText = showFullText;
 window.closeModal = closeModal;
