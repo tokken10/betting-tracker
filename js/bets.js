@@ -61,9 +61,10 @@ export async function removeBet(betId) {
 
 /** Clear all bets */
 export async function clearBets() {
-  bets = [];
   try {
-    await fetch(API_URL, { method: 'DELETE' });
+    const res = await fetch(API_URL, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to clear bets');
+    bets = [];
   } catch (err) {
     console.error('❌ Error clearing bets:', err.message);
   }
@@ -74,22 +75,23 @@ export async function settleBet(betId, newOutcome) {
   const bet = bets.find(b => b._id === betId);
   if (!bet) return;
 
-  bet.outcome = newOutcome;
+  const updatedFields = { outcome: newOutcome };
 
   if (newOutcome === 'Win') {
-    bet.payout = calculatePayout(bet.odds, bet.stake);
-    bet.profitLoss = bet.payout - bet.stake;
+    updatedFields.payout = calculatePayout(bet.odds, bet.stake);
+    updatedFields.profitLoss = updatedFields.payout - bet.stake;
   } else if (newOutcome === 'Loss') {
-    bet.payout = 0;
-    bet.profitLoss = -bet.stake;
+    updatedFields.payout = 0;
+    updatedFields.profitLoss = -bet.stake;
   }
 
   try {
     const res = await fetch(`${API_URL}/${betId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bet),
+      body: JSON.stringify(updatedFields),
     });
+    if (!res.ok) throw new Error('Failed to update bet');
 
     const updatedBet = await res.json();
     const index = bets.findIndex(b => b._id === betId);
