@@ -25,6 +25,18 @@ router.delete('/', async (req, res) => {
   res.json({ message: 'All bets deleted' });
 });
 
+// Update a bet
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedBet = await Bet.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(updatedBet);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // Delete a bet
 router.delete('/:id', async (req, res) => {
   await Bet.findByIdAndDelete(req.params.id);

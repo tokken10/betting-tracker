@@ -1,16 +1,16 @@
 import { bets, removeBet as removeBetData, settleBet as settleBetData } from './bets.js';
 import { updateStats } from './stats.js';
 
-export function handleRemoveBet(id) {
-  removeBetData(id);
+export async function handleRemoveBet(id) {
+  await removeBetData(id);
   renderBets();
   updateStats();
 }
 
-export function handleSettleBet(selectEl, betId) {
+export async function handleSettleBet(selectEl, betId) {
   const newOutcome = selectEl.value;
   if (!newOutcome) return;
-  settleBetData(betId, newOutcome);
+  await settleBetData(betId, newOutcome);
   renderBets();
   updateStats();
 }

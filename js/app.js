@@ -7,6 +7,7 @@ import { showFullText, closeModal } from './modal.js';
 // Always make core functions globally available for buttons
 window.addBet = handleAddBet;
 window.clearAllBets = handleClearAll;
+window.removeBet = handleRemoveBet;
 window.loadDemoData = async () => {
   loadDemoBets();
   renderBets();
