@@ -19,6 +19,12 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Delete all bets
+router.delete('/', async (req, res) => {
+  await Bet.deleteMany({});
+  res.json({ message: 'All bets deleted' });
+});
+
 // Delete a bet
 router.delete('/:id', async (req, res) => {
   await Bet.findByIdAndDelete(req.params.id);
