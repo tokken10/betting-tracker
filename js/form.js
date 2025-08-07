@@ -87,9 +87,9 @@ export async function handleAddBet() {
   }
 }
 
-export function handleClearAll() {
+export async function handleClearAll() {
   if (confirm('Are you sure you want to clear all betting data? This cannot be undone.')) {
-    clearBets();
+    await clearBets();
     renderBets();
     updateStats();
   }
