@@ -31,7 +31,7 @@ export function updatePayoutPreview() {
   }
 }
 
-export function handleAddBet() {
+export async function handleAddBet() {
   const date = document.getElementById('date').value;
   const sport = document.getElementById('sport').value;
   const event = document.getElementById('event').value;
@@ -77,10 +77,14 @@ export function handleAddBet() {
     note
   };
 
-  addBetData(bet);
-  renderBets();
-  updateStats();
-  clearForm();
+  try {
+    await addBetData(bet);
+    renderBets();
+    updateStats();
+    clearForm();
+  } catch (err) {
+    console.error('❌ Error adding bet:', err.message);
+  }
 }
 
 export function handleClearAll() {
