@@ -65,11 +65,11 @@ export function renderBets() {
         </div>
       </td>
       <td>${bet.odds}</td>
-      <td>$${bet.stake.toFixed(2)}</td>
+      <td>$${parseFloat(bet.stake).toFixed(2)}</td>
       <td>${bet.outcome}</td>
-      <td>$${bet.payout.toFixed(2)}</td>
+      <td>$${parseFloat(bet.payout).toFixed(2)}</td>
       <td class="${profitClass}">
-        ${bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + bet.profitLoss.toFixed(2)}
+        ${bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + parseFloat(bet.profitLoss).toFixed(2)}
       </td>
       <td class="note-cell">
         <div class="note-content" title="${bet.note || ''}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
@@ -80,14 +80,14 @@ export function renderBets() {
         ${
           bet.outcome === 'Pending'
             ? `
-              <select onchange="settleBet(this, ${bet.id})">
+              <select onchange="settleBet(this, '${bet._id}')">
                 <option value="">Settle</option>
                 <option value="Win">Win</option>
                 <option value="Loss">Loss</option>
               </select>
-              <button class="btn btn-danger" onclick="removeBet(${bet.id})">Remove</button>
+              <button class="btn btn-danger" onclick="removeBet('${bet._id}')">Remove</button>
             `
-            : `<button class="btn btn-danger" onclick="removeBet(${bet.id})">Remove</button>`
+            : `<button class="btn btn-danger" onclick="removeBet('${bet._id}')">Remove</button>`
         }
       </td>
     `;
