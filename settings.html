@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <div id="include-header"></div>
+
+    <div class="controls">
+      <h2>Settings</h2>
+      <button class="btn btn-danger" onclick="clearAllBets()">Clear All Bets</button>
+    </div>
+  </div>
+
+  <script src="js/loadShared.js"></script>
+  <script type="module" src="js/app.js"></script>
+  <script>
+    window.addEventListener('shared:loaded', () => {
+      const title = document.getElementById('page-title');
+      const subtitle = document.getElementById('page-subtitle');
+      const learnMore = document.getElementById('learn-more-link');
+      if (title) title.textContent = '⚙️ Settings';
+      if (subtitle) subtitle.textContent = 'Manage application settings';
+      if (learnMore) learnMore.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
