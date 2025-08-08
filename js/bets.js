@@ -1,3 +1,4 @@
+import { formatDate } from './utils.js';
 export let bets = [];
 
 const API_URL = 'http://localhost:5000/api/bets'; // Change to your deployed URL in production
@@ -108,7 +109,7 @@ export function exportToCSV() {
   const csvContent = [
     headers.join(','),
     ...bets.map(bet => [
-      bet.date,
+      formatDate(bet.date),
       bet.sport,
       bet.event,
       bet.betType,

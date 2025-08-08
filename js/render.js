@@ -1,5 +1,6 @@
 import { bets, removeBet as removeBetData, settleBet as settleBetData } from './bets.js';
 import { updateStats } from './stats.js';
+import { formatDate } from './utils.js';
 
 export async function handleRemoveBet(id) {
   await removeBetData(id);
@@ -51,7 +52,7 @@ export function renderBets() {
     const profitSymbol = bet.profitLoss > 0 ? '+' : '';
 
     row.innerHTML = `
-      <td>${bet.date}</td>
+      <td>${formatDate(bet.date)}</td>
       <td>${bet.sport}</td>
       <td class="event-cell">
         <div class="event-content" title="${bet.event}" onclick="showFullText(${JSON.stringify(bet.event)})">
