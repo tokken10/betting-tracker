@@ -17,6 +17,7 @@ window.settleBet = handleSettleBet;
 window.showFullText = showFullText;
 window.closeModal = closeModal;
 window.exportToCSV = exportToCSV;
+window.renderBets = renderBets;
 
 // Initialize form handlers
 initForm();
