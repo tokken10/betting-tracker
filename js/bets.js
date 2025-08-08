@@ -3,10 +3,15 @@ export let bets = [];
 
 const API_URL = 'http://localhost:5000/api/bets'; // Change to your deployed URL in production
 
+function authHeaders(extra = {}) {
+  const token = localStorage.getItem('token');
+  return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
+}
+
 /** Fetch all bets from the backend */
 export async function fetchBets() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_URL, { headers: authHeaders() });
     if (!res.ok) throw new Error('Failed to fetch bets');
     bets = await res.json();
   } catch (err) {
@@ -38,7 +43,7 @@ export async function addBet(bet) {
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(bet),
     });
     const savedBet = await res.json();
@@ -53,6 +58,7 @@ export async function removeBet(betId) {
   try {
     await fetch(`${API_URL}/${betId}`, {
       method: 'DELETE',
+      headers: authHeaders(),
     });
     bets = bets.filter(b => b._id !== betId);
   } catch (err) {
@@ -64,7 +70,7 @@ export async function removeBet(betId) {
 export async function clearBets() {
   bets = [];
   try {
-    await fetch(API_URL, { method: 'DELETE' });
+    await fetch(API_URL, { method: 'DELETE', headers: authHeaders() });
   } catch (err) {
     console.error('❌ Error clearing bets:', err.message);
   }
@@ -88,7 +94,7 @@ export async function settleBet(betId, newOutcome) {
   try {
     const res = await fetch(`${API_URL}/${betId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(bet),
     });
 
