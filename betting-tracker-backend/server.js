@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const auth = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -25,7 +26,7 @@ app.get('/', (req, res) => {
 
 // Routes
 const betRoutes = require('./routes/bets');
-app.use('/api/bets', betRoutes);
+app.use('/api/bets', auth, betRoutes);
 
 // Start server
 app.listen(PORT, () => {
