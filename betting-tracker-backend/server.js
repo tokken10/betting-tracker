@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
 
 // Routes
 const betRoutes = require('./routes/bets');
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/bets', auth, betRoutes);
 
 // Start server
