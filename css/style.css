@@ -38,6 +38,12 @@ body {
     margin-left: 15px;
   }
 
+  .header .top-nav .user-display {
+    color: white;
+    font-size: 14px;
+    margin-left: 15px;
+  }
+
  .header .learn-more-link {
     color: white;
     text-decoration: underline;
