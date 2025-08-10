@@ -1,3 +1,25 @@
+function getUsername() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try {
+    return JSON.parse(atob(token.split('.')[1])).username;
+  } catch {
+    return null;
+  }
+}
+
+function applyUsername(container, username) {
+  if (!username) return;
+  const userDisplay = container.querySelector('#current-user');
+  if (userDisplay) userDisplay.textContent = username;
+
+  const profileName = container.querySelector('#profile-username');
+  if (profileName) profileName.textContent = username;
+
+  const avatar = container.querySelector('.profile-avatar');
+  if (avatar) avatar.textContent = username.slice(0, 2).toUpperCase();
+}
+
 async function loadSharedComponents() {
   const includes = {
     header: 'shared/header.html',
@@ -17,6 +39,9 @@ async function loadSharedComponents() {
       const html = await res.text();
       target.innerHTML = html;
 
+      const username = getUsername();
+      applyUsername(target, username);
+
       // Profile-specific behavior
       if (key === 'header' && window.location.pathname.includes('profile.html')) {
         const profileRes = await fetch('shared/profile-header.html');
@@ -26,9 +51,10 @@ async function loadSharedComponents() {
         const headerContainer = target.querySelector('.header');
         if (headerContainer) {
           headerContainer.insertAdjacentHTML('beforeend', profileHTML);
+          applyUsername(headerContainer, username);
         }
 
-          // Optionally hide default header title/subtitle
+        // Optionally hide default header title/subtitle
         const title = document.getElementById('page-title');
         const subtitle = document.getElementById('page-subtitle');
         const learnMore = document.getElementById('learn-more-link');
