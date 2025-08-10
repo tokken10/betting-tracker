@@ -1,7 +1,8 @@
 import { formatDate } from './utils.js';
+import { API_BASE_URL } from './config.js';
 export let bets = [];
 
-const API_URL = 'http://localhost:5000/api/bets'; // Change to your deployed URL in production
+const API_URL = `${API_BASE_URL}/api/bets`;
 
 function authHeaders(extra = {}) {
   const token = localStorage.getItem('token');
