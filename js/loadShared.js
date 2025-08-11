@@ -1,8 +1,8 @@
-function getUsername() {
+function getUser() {
   const token = localStorage.getItem('token');
   if (!token) return null;
   try {
-    return JSON.parse(atob(token.split('.')[1])).username;
+    return JSON.parse(atob(token.split('.')[1]));
   } catch {
     return null;
   }
@@ -39,8 +39,15 @@ async function loadSharedComponents() {
       const html = await res.text();
       target.innerHTML = html;
 
-      const username = getUsername();
-      applyUsername(target, username);
+      const user = getUser();
+      applyUsername(target, user?.username);
+
+      if (key === 'header') {
+        const adminLink = target.querySelector('a[href="admin.html"]');
+        if (adminLink && user?.role !== 'admin') {
+          adminLink.style.display = 'none';
+        }
+      }
 
       // Profile-specific behavior
       if (key === 'header' && window.location.pathname.includes('profile.html')) {
@@ -51,7 +58,7 @@ async function loadSharedComponents() {
         const headerContainer = target.querySelector('.header');
         if (headerContainer) {
           headerContainer.insertAdjacentHTML('beforeend', profileHTML);
-          applyUsername(headerContainer, username);
+          applyUsername(headerContainer, user?.username);
         }
 
         // Optionally hide default header title/subtitle

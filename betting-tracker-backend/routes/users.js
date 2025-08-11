@@ -1,10 +1,11 @@
 const express = require('express');
 const User = require('../models/User');
+const authorize = require('../middleware/authorize');
 
 const router = express.Router();
 
 // Get all registered users (admin access)
-router.get('/', async (req, res) => {
+router.get('/', authorize('admin'), async (req, res) => {
   try {
     const users = await User.find().select('username');
     res.json(users);
