@@ -1,14 +1,22 @@
 import { API_BASE_URL } from './config.js';
-
+import { decodeToken } from './utils.js';
 
 const API_URL = `${API_BASE_URL}/api/users`;
 
 async function loadUsers() {
   const token = localStorage.getItem('token');
-  if (!token) return;
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const user = decodeToken(token);
+  if (!user || user.role !== 'admin') {
+    window.location.href = 'index.html';
+    return;
+  }
 
   try {
-
     const res = await fetch(API_URL, {
       headers: { Authorization: `Bearer ${token}` }
     });
