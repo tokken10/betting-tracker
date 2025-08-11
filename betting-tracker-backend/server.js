@@ -26,8 +26,10 @@ app.get('/', (req, res) => {
 
 // Routes
 const betRoutes = require('./routes/bets');
+const userRoutes = require('./routes/users');
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/bets', auth, betRoutes);
+app.use('/api/users', auth, userRoutes);
 
 // Start server
 app.listen(PORT, () => {
