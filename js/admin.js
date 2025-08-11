@@ -24,6 +24,7 @@ async function loadUsers() {
     const users = await res.json();
     const list = document.getElementById('user-list');
     list.innerHTML = users.map(u => `<li>${u.username}</li>`).join('');
+    document.getElementById('user-count-header').textContent = `Total Users: ${users.length}`;
   } catch (err) {
     console.error(err);
   }
