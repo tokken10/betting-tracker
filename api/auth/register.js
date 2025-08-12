@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const dbConnect = require('../../lib/mongo');
+const connectToDatabase = require('../../lib/mongo');
 const User = require('../../betting-tracker-backend/models/User');
 
 module.exports = async function handler(req, res) {
@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  await dbConnect();
+  await connectToDatabase();
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
