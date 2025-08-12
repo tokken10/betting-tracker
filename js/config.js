@@ -1,1 +1,1 @@
-export const API_BASE_URL = window.API_BASE_URL || window.location.origin;
+export const API_BASE_URL = 'https://betting-tracker-nine.vercel.app' || 'http://localhost:5000';
