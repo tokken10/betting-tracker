@@ -1,7 +1,7 @@
 import { API_BASE_URL } from './config.js';
 import { decodeToken } from './utils.js';
 
-const API_URL = `${API_BASE_URL}/api/users`;
+const API_URL = `${API_BASE_URL}/users`;
 
 async function loadUsers() {
   const token = localStorage.getItem('token');

@@ -2,7 +2,7 @@ import { formatDate } from './utils.js';
 import { API_BASE_URL } from './config.js';
 export let bets = [];
 
-const API_URL = `${API_BASE_URL}/api/bets`;
+const API_URL = `${API_BASE_URL}/bets`;
 
 function authHeaders(extra = {}) {
   const token = localStorage.getItem('token');
