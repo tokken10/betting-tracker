@@ -15,8 +15,7 @@ const allowedOrigins = new Set(
     .filter(Boolean)
 );
 
-// Middleware
-app.use(cors({
+const corsOptions = {
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin || allowedOrigins.has(origin)) {
@@ -24,16 +23,12 @@ app.use(cors({
     }
     return callback(null, false);
   },
-  credentials: true
-}));
+  credentials: true,
+};
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && !allowedOrigins.has(origin)) {
-    return res.sendStatus(403);
-  }
-  next();
-});
+// Middleware
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 
@@ -53,6 +48,18 @@ app.get('/', (req, res) => {
 const betRoutes = require('./routes/bets');
 const userRoutes = require('./routes/users');
 app.use('/api/auth', require('./routes/auth'));
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && !allowedOrigins.has(origin)) {
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(204);
+    }
+    return res.sendStatus(403);
+  }
+  next();
+});
+
 app.use('/api/bets', auth, betRoutes);
 app.use('/api/users', auth, userRoutes);
 
