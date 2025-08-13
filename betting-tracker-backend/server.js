@@ -8,7 +8,13 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration
+const envOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 const exactOrigins = [
+  ...envOrigins,
   process.env.FRONTEND_URL,       // e.g. https://betting-tracker-nine.vercel.app
   process.env.FRONTEND_URL_ALT,   // e.g. https://your-custom-domain.com
   'http://localhost:3000',
