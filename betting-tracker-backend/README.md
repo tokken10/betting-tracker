@@ -15,13 +15,11 @@ In your Vercel project settings add:
 ```
 FRONTEND_URL=https://betting-tracker-nine.vercel.app
 FRONTEND_URL_ALT=https://your-custom-domain.com  # optional
+ALLOWED_ORIGINS=https://example1.com,https://example2.com  # optional, comma-separated
 ```
 
-You can also manage origins entirely through the `ALLOWED_ORIGINS` variable. Provide comma‑separated values and prefix any regular expression with `re:`:
-
-```
-ALLOWED_ORIGINS=https://betting-tracker-nine.vercel.app,http://localhost:3000,re:^https?:\/\/betting-tracker-nine(-[a-z0-9-]+)?\.vercel\.app$
-```
+`ALLOWED_ORIGINS` is parsed as a comma-separated list and merged with the
+exact origins above.
 
 ### Frontend API calls
 
