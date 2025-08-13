@@ -83,13 +83,25 @@ app.use(cookieParser());
 app.get('/health', (_, res) => res.json({ ok: true }));
 
 /* --------------------------- D A T A B A S E  C O N N --------------------- */
-// connectDB() should cache connections internally for serverless re-use
-await connectDB();
+// Ensure required environment variables are present before connecting
+const missingEnv = [];
+if (!process.env.MONGO_URI) missingEnv.push('MONGO_URI');
+if (!process.env.JWT_SECRET) missingEnv.push('JWT_SECRET');
 
-/* -------------------------------- R O U T E S ------------------------------ */
-// Mounted under /api/* by vercel.json
-app.use('/auth', authRouter);
-app.use('/bets', auth, betRoutes);
-app.use('/users', auth, userRoutes);
+if (missingEnv.length) {
+  const msg = `Missing required environment variables: ${missingEnv.join(', ')}`;
+  console.error(msg);
+  // Return a 500 response for all routes if misconfigured
+  app.use((_, res) => res.status(500).json({ error: 'Server misconfiguration' }));
+} else {
+  // connectDB() should cache connections internally for serverless re-use
+  await connectDB();
+
+  /* -------------------------------- R O U T E S ------------------------------ */
+  // Mounted under /api/* by vercel.json
+  app.use('/auth', authRouter);
+  app.use('/bets', auth, betRoutes);
+  app.use('/users', auth, userRoutes);
+}
 
 export default app;
