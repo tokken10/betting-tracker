@@ -8,26 +8,32 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration
-const allowedOrigins = [
-  'http://localhost:3000',  // Local development
-  'http://localhost:5000',  // Local backend
-  'https://your-vercel-app.vercel.app'  // Your Vercel frontend URL
-];
+const allowedOrigins = new Set(
+  (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean)
+);
 
 // Middleware
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    if (!origin || allowedOrigins.has(origin)) {
+      return callback(null, true);
     }
-    return callback(null, true);
+    return callback(null, false);
   },
   credentials: true
 }));
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && !allowedOrigins.has(origin)) {
+    return res.sendStatus(403);
+  }
+  next();
+});
 
 app.use(express.json());
 
