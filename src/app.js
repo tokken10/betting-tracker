@@ -94,14 +94,21 @@ if (missingEnv.length) {
   // Return a 500 response for all routes if misconfigured
   app.use((_, res) => res.status(500).json({ error: 'Server misconfiguration' }));
 } else {
-  // connectDB() should cache connections internally for serverless re-use
-  await connectDB();
+  try {
+    // connectDB() should cache connections internally for serverless re-use
+    await connectDB();
 
-  /* -------------------------------- R O U T E S ------------------------------ */
-  // Mounted under /api/* by vercel.json
-  app.use('/auth', authRouter);
-  app.use('/bets', auth, betRoutes);
-  app.use('/users', auth, userRoutes);
+    /* -------------------------------- R O U T E S ------------------------------ */
+    // Mounted under /api/* by vercel.json
+    app.use('/auth', authRouter);
+    app.use('/bets', auth, betRoutes);
+    app.use('/users', auth, userRoutes);
+  } catch (err) {
+    console.error('Failed to connect to database', err);
+    app.use((_, res) =>
+      res.status(500).json({ error: 'Database connection failed' })
+    );
+  }
 }
 
 export default app;
