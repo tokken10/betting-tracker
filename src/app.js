@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.js';
 import betRoutes from './routes/bets.js';
 import userRoutes from './routes/users.js';
+import seedRoutes from './routes/seed.js';
 import auth from './middleware/auth.js';
 import connectDB from './db.js';
 
@@ -52,6 +53,7 @@ await connectDB();
 app.use('/auth', authRouter);
 app.use('/bets', auth, betRoutes);
 app.use('/users', auth, userRoutes);
+app.use('/seed', auth, seedRoutes);
 
 // Health
 app.get('/health', (_, res) => res.json({ ok: true }));
