@@ -19,7 +19,7 @@ function validateBet(data) {
 
 router.get('/', async (req, res) => {
   try {
-    const bets = await Bet.find();
+    const bets = await Bet.find({ user: req.user.id });
     res.json(bets);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch bets' });
@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: validationError });
   }
   try {
-    const newBet = new Bet(req.body);
+    const newBet = new Bet({ ...req.body, user: req.user.id });
     await newBet.save();
     res.status(201).json(newBet);
   } catch (err) {
@@ -47,7 +47,7 @@ router.delete('/', authorize('admin'), async (req, res) => {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
-    await Bet.deleteMany({});
+    await Bet.deleteMany({ user: req.user.id });
     res.json({ message: 'All bets deleted' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete bets' });
@@ -61,7 +61,11 @@ router.put('/:id', async (req, res) => {
     return res.status(400).json({ error: validationError });
   }
   try {
-    const updatedBet = await Bet.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedBet = await Bet.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      req.body,
+      { new: true }
+    );
     res.json(updatedBet);
   } catch (err) {
     console.error(err);
@@ -70,7 +74,7 @@ router.put('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  await Bet.findByIdAndDelete(req.params.id);
+  await Bet.findOneAndDelete({ _id: req.params.id, user: req.user.id });
   res.json({ message: 'Bet deleted' });
 });
 
