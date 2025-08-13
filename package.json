@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vercel dev",
     "start": "node api/index.js",
-    "test": "echo \"No tests\""
+    "test": "echo \"No tests\"",
+    "migrate:bet-users": "node scripts/assignUserToBets.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
