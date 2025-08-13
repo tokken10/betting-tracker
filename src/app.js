@@ -11,85 +11,47 @@ import connectDB from './db.js';
 
 const app = express();
 
-/* --------------------------- C O R S  S E T U P --------------------------- */
-/**
- * Exact origins only (no trailing slashes). You can extend via ALLOWED_ORIGINS
- * env var (comma-separated).
- */
+// Parse JSON and cookies early
+app.use(express.json());
+app.use(cookieParser());
+
+// Build allowlist from env and common local domains
 const envAllowed = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
 
-// ✅ Make sure your live frontend is EXACT here:
-const allowedOriginsArr = [
-  'https://betting-tracker-nine.vercel.app', // production frontend
-  'http://localhost:3000',                   // local dev (adjust/remove)
-  'http://localhost:5173',                   // local dev (Vite, if used)
+const allowedOrigins = new Set([
+  'https://betting-tracker-nine.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
   ...envAllowed,
-];
-const allowedOrigins = new Set(allowedOriginsArr);
-
-// Helpful for caches/CDNs to send correct ACAO per-origin
-app.use((_, res, next) => {
-  res.setHeader('Vary', 'Origin');
-  next();
-});
+]);
 
 const corsOptions = {
   origin(origin, callback) {
-    // Allow non-browser clients (curl/Postman/server-to-server) with no Origin
-    if (!origin) {
-      if (process.env.DEBUG_CORS === '1') console.log('[CORS] no Origin → allow');
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.has(origin)) {
-      if (process.env.DEBUG_CORS === '1') console.log(`[CORS] allow ${origin}`);
-      return callback(null, true);
-    }
-
-    // Do NOT throw; returning false blocks cleanly (no 500).
-    if (process.env.DEBUG_CORS === '1') console.log(`[CORS] BLOCK ${origin}`);
-    return callback(null, false);
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error(`CORS: Origin not allowed: ${origin}`), false);
   },
-  credentials: true, // set to false if you do NOT use browser cookies
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['Content-Type', 'content-type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   optionsSuccessStatus: 204,
-  preflightContinue: false, // let cors terminate OPTIONS
-  maxAge: 86400, // cache preflights 1 day
 };
 
-// Apply CORS for all routes + explicit preflights
+// Apply CORS globally and handle preflight
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
-/**
- * Short-circuit OPTIONS early so nothing else (like DB) runs for preflights.
- * This also guarantees no 500 on OPTIONS.
- */
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') return res.sendStatus(204);
-  next();
-});
-
-/* ----------------------- P A R S I N G  &  C O O K I E S ------------------ */
-app.use(express.json());
-app.use(cookieParser());
-
-/* -------------------------- H E A L T H  (no DB) -------------------------- */
-// Works even if Mongo is misconfigured — handy for CORS/preflight tests
-app.get('/health', (_, res) => res.json({ ok: true }));
-
-/* --------------------------- D A T A B A S E  C O N N --------------------- */
-// connectDB() should cache connections internally for serverless re-use
 await connectDB();
 
-/* -------------------------------- R O U T E S ------------------------------ */
-// Mounted under /api/* by vercel.json
+// Routes (function mounted under /api/* on Vercel)
 app.use('/auth', authRouter);
 app.use('/bets', auth, betRoutes);
 app.use('/users', auth, userRoutes);
+
+// Health check for readiness probes
+app.get('/health', (_, res) => res.json({ ok: true }));
 
 export default app;
