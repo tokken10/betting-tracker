@@ -5,7 +5,7 @@ import User from '../models/User.js';
 
 const router = Router();
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
   try {
     const { username, password, role } = req.body;
     if (!username || !password) {
@@ -21,11 +21,11 @@ router.post('/register', async (req, res) => {
     const token = jwt.sign({ id: user._id, username: user.username, role: user.role }, process.env.JWT_SECRET);
     res.status(201).json({ token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
@@ -39,7 +39,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user._id, username: user.username, role: user.role }, process.env.JWT_SECRET);
     res.json({ token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 

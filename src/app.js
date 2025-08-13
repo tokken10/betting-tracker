@@ -103,6 +103,11 @@ if (missingEnv.length) {
     app.use('/auth', authRouter);
     app.use('/bets', auth, betRoutes);
     app.use('/users', auth, userRoutes);
+
+    app.use((err, req, res, next) => {
+      console.error(err);
+      res.status(500).json({ error: 'Internal server error' });
+    });
   } catch (err) {
     console.error('Failed to connect to database', err);
     app.use((_, res) =>
