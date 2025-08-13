@@ -2,6 +2,7 @@ import { API_BASE_URL } from './config.js';
 import { decodeToken } from './utils.js';
 
 const API_URL = `${API_BASE_URL}/users`;
+const SEED_URL = `${API_BASE_URL}/seed/nowbenj`;
 
 async function loadUsers() {
   const token = localStorage.getItem('token');
@@ -30,4 +31,29 @@ async function loadUsers() {
   }
 }
 
-window.addEventListener('shared:loaded', loadUsers);
+async function seedNowbenj() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+  try {
+    const res = await fetch(SEED_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Seeding failed');
+    alert('Seeding complete');
+    await loadUsers();
+  } catch (err) {
+    console.error(err);
+    alert('Seeding failed');
+  }
+}
+
+window.addEventListener('shared:loaded', () => {
+  loadUsers();
+  document
+    .getElementById('seed-nowbenj-btn')
+    .addEventListener('click', seedNowbenj);
+});
