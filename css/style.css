@@ -28,21 +28,36 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+    position: relative;
+  }
+
+  .header .nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
   }
 
   .header .nav-links {
     display: flex;
-    gap: 15px;
+    gap: 20px;
   }
 
   .header .nav-links a {
     color: white;
     text-decoration: none;
     font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.1);
+    transition: background 0.3s;
   }
 
   .header .nav-links a:hover {
-    text-decoration: underline;
+    background: rgba(255,255,255,0.25);
+    text-decoration: none;
   }
 
   .header .top-nav .user-display {
@@ -63,7 +78,7 @@ body {
   font-size: 24px;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .header {
     padding-top: 20px;
   }
@@ -72,14 +87,30 @@ body {
     font-size: 20px;
   }
 
-  .header .top-nav {
-    flex-direction: column;
-    gap: 8px;
+  .header .nav-toggle {
+    display: block;
   }
 
   .header .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    flex-direction: column;
+    background: #2c3e50;
+    width: 100%;
+    gap: 0;
+  }
+
+  .header .nav-links a {
+    padding: 12px 20px;
+    border-radius: 0;
+    background: transparent;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .header .nav-links.open {
+    display: flex;
   }
 }
 
@@ -103,6 +134,23 @@ body {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 5px;
+}
+
+#totalBets { color: #f1c40f; }
+#totalStaked { color: #e67e22; }
+#totalReturn { color: #3498db; }
+#bestSport { color: #9b59b6; }
+#avgStake { color: #1abc9c; }
+#winStreak { color: #e84393; }
+
+@media (max-width: 600px) {
+  .stats-bar {
+    font-size: 12px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+  }
 }
 
 .controls {

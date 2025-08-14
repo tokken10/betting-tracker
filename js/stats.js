@@ -12,7 +12,13 @@ export function updateStats() {
   const el = id => document.getElementById(id);
 
   if (el('totalBets')) el('totalBets').textContent = bets.length;
-  if (el('winRate')) el('winRate').textContent = settled.length ? ((wins / settled.length) * 100).toFixed(1) + '%' : '0%';
+
+  if (el('winRate')) {
+    const rate = settled.length ? (wins / settled.length) * 100 : 0;
+    el('winRate').textContent = rate.toFixed(1) + '%';
+    el('winRate').className = 'stat-value ' + (rate >= 50 ? 'positive' : 'negative');
+  }
+
   if (el('totalStaked')) el('totalStaked').textContent = '$' + totalStaked.toFixed(2);
   if (el('totalReturn')) el('totalReturn').textContent = '$' + totalReturn.toFixed(2);
 
@@ -26,8 +32,6 @@ export function updateStats() {
     el('roi').className = 'stat-value ' + (roi >= 0 ? 'positive' : 'negative');
   }
 
-  if (el('profile-total-bets')) el('profile-total-bets').textContent = bets.length;
-  if (el('profile-avg-stake')) el('profile-avg-stake').textContent = '$' + avgStake;
 
   const profitBySport = {};
   for (let b of settled) {
@@ -35,7 +39,7 @@ export function updateStats() {
     profitBySport[b.sport] += b.profitLoss;
   }
   const bestSport = Object.entries(profitBySport).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
-  if (el('profile-best-sport')) el('profile-best-sport').textContent = bestSport;
+  if (el('bestSport')) el('bestSport').textContent = bestSport;
 
   let streak = 0;
   let maxStreak = 0;
@@ -47,5 +51,6 @@ export function updateStats() {
       streak = 0;
     }
   }
-  if (el('profile-win-streak')) el('profile-win-streak').textContent = maxStreak;
+  if (el('winStreak')) el('winStreak').textContent = maxStreak;
+  if (el('avgStake')) el('avgStake').textContent = '$' + avgStake;
 }
