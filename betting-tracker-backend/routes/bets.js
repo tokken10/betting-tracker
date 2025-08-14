@@ -20,9 +20,9 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Delete all bets for the authenticated user (admin only)
+// Delete all bets from the database (admin only)
 router.delete('/', authorize('admin'), async (req, res) => {
-  await Bet.deleteMany({ user: req.user.id });
+  await Bet.deleteMany({});
   res.json({ message: 'All bets deleted' });
 });
 

@@ -26,7 +26,9 @@
     <script src="js/loadShared.js"></script>
     <script type="module" src="js/app.js"></script>
     <script src="js/auth.js"></script>
-  <script>
+  <script type="module">
+    import { decodeToken } from './js/utils.js';
+
     window.addEventListener('shared:loaded', () => {
       const title = document.getElementById('page-title');
       const subtitle = document.getElementById('page-subtitle');
@@ -34,6 +36,13 @@
       if (title) title.textContent = '⚙️ Settings';
       if (subtitle) subtitle.textContent = 'Manage application settings';
       if (learnMore) learnMore.style.display = 'none';
+
+      const token = localStorage.getItem('token');
+      const user = token ? decodeToken(token) : null;
+      if (!user || user.role !== 'admin') {
+        const clearBtn = document.querySelector('button[onclick="clearAllBets()"]');
+        if (clearBtn) clearBtn.style.display = 'none';
+      }
     });
   </script>
 </body>

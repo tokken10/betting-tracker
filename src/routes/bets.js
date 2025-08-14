@@ -44,10 +44,7 @@ router.post('/', async (req, res) => {
 
 router.delete('/', authorize('admin'), async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-    await Bet.deleteMany({ user: req.user.id });
+    await Bet.deleteMany({});
     res.json({ message: 'All bets deleted' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete bets' });
