@@ -61,11 +61,6 @@ body {
     text-decoration: none;
   }
 
-  .header .top-nav .user-display {
-    color: white;
-    font-size: 14px;
-  }
-
  .header .learn-more-link {
     color: white;
     text-decoration: underline;

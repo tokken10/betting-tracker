@@ -8,18 +8,6 @@ function getUser() {
   }
 }
 
-function applyUsername(container, username) {
-  if (!username) return;
-  const userDisplay = container.querySelector('#current-user');
-  if (userDisplay) userDisplay.textContent = username;
-
-  const profileName = container.querySelector('#profile-username');
-  if (profileName) profileName.textContent = username;
-
-  const avatar = container.querySelector('.profile-avatar');
-  if (avatar) avatar.textContent = username.slice(0, 2).toUpperCase();
-}
-
 async function loadSharedComponents() {
   const includes = {
     header: 'shared/header.html',
@@ -40,7 +28,6 @@ async function loadSharedComponents() {
       target.innerHTML = html;
 
       const user = getUser();
-      applyUsername(target, user?.username);
 
       if (key === 'header') {
         const adminLink = target.querySelector('a[href="admin.html"]');
@@ -66,7 +53,6 @@ async function loadSharedComponents() {
         const headerContainer = target.querySelector('.header');
         if (headerContainer) {
           headerContainer.insertAdjacentHTML('beforeend', profileHTML);
-          applyUsername(headerContainer, user?.username);
         }
 
         // Optionally hide default header title/subtitle
