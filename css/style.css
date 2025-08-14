@@ -24,24 +24,30 @@ body {
   }
 
   .header .top-nav {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 1;
-
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
   }
 
-  .header .top-nav a {
+  .header .nav-links {
+    display: flex;
+    gap: 15px;
+  }
+
+  .header .nav-links a {
     color: white;
-    text-decoration: underline;
+    text-decoration: none;
     font-size: 14px;
-    margin-left: 15px;
+  }
+
+  .header .nav-links a:hover {
+    text-decoration: underline;
   }
 
   .header .top-nav .user-display {
     color: white;
     font-size: 14px;
-    margin-left: 15px;
   }
 
  .header .learn-more-link {
@@ -59,11 +65,21 @@ body {
 
 @media (max-width: 480px) {
   .header {
-    padding-top: 60px;
+    padding-top: 20px;
   }
 
   .header h1 {
     font-size: 20px;
+  }
+
+  .header .top-nav {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .header .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 
