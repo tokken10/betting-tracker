@@ -26,7 +26,6 @@ export function updateStats() {
     el('roi').className = 'stat-value ' + (roi >= 0 ? 'positive' : 'negative');
   }
 
-  if (el('profile-total-bets')) el('profile-total-bets').textContent = bets.length;
   if (el('profile-avg-stake')) el('profile-avg-stake').textContent = '$' + avgStake;
 
   const profitBySport = {};
