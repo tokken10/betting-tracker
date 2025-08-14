@@ -8,11 +8,8 @@ function getUser() {
   }
 }
 
-function applyUsername(container, username) {
+function populateProfileHeader(container, username) {
   if (!username) return;
-  const userDisplay = container.querySelector('#current-user');
-  if (userDisplay) userDisplay.textContent = username;
-
   const profileName = container.querySelector('#profile-username');
   if (profileName) profileName.textContent = username;
 
@@ -40,7 +37,6 @@ async function loadSharedComponents() {
       target.innerHTML = html;
 
       const user = getUser();
-      applyUsername(target, user?.username);
 
       if (key === 'header') {
         const adminLink = target.querySelector('a[href="admin.html"]');
@@ -66,7 +62,7 @@ async function loadSharedComponents() {
         const headerContainer = target.querySelector('.header');
         if (headerContainer) {
           headerContainer.insertAdjacentHTML('beforeend', profileHTML);
-          applyUsername(headerContainer, user?.username);
+          populateProfileHeader(headerContainer, user?.username);
         }
 
         // Optionally hide default header title/subtitle
