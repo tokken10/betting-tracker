@@ -1,6 +1,7 @@
 import { addBet as addBetData, clearBets, calculatePayout } from './bets.js';
 import { renderBets } from './render.js';
 import { updateStats } from './stats.js';
+import { decodeToken } from './utils.js';
 
 export function initForm() {
   const outcomeEl = document.getElementById('outcome');
@@ -88,10 +89,20 @@ export async function handleAddBet() {
 }
 
 export async function handleClearAll() {
+  const token = localStorage.getItem('token');
+  const user = token ? decodeToken(token) : null;
+  if (!user || user.role !== 'admin') {
+    alert('Only admins can clear all bets.');
+    return;
+  }
   if (confirm('Are you sure you want to clear all betting data? This cannot be undone.')) {
-    await clearBets();
-    renderBets();
-    updateStats();
+    try {
+      await clearBets();
+      renderBets();
+      updateStats();
+    } catch (err) {
+      alert('Failed to clear bets.');
+    }
   }
 }
 

@@ -69,11 +69,13 @@ export async function removeBet(betId) {
 
 /** Clear all bets */
 export async function clearBets() {
-  bets = [];
   try {
-    await fetch(API_URL, { method: 'DELETE', headers: authHeaders() });
+    const res = await fetch(API_URL, { method: 'DELETE', headers: authHeaders() });
+    if (!res.ok) throw new Error('Failed to clear bets');
+    bets = [];
   } catch (err) {
     console.error('❌ Error clearing bets:', err.message);
+    throw err;
   }
 }
 

@@ -3,9 +3,10 @@ const router = express.Router();
 const Bet = require('../models/Bet');
 const authorize = require('../middleware/authorize');
 
-// Get all bets for the authenticated user
+// Get bets - admins see all, others see their own
 router.get('/', async (req, res) => {
-  const bets = await Bet.find({ user: req.user.id });
+  const filter = req.user.role === 'admin' ? {} : { user: req.user.id };
+  const bets = await Bet.find(filter);
   res.json(bets);
 });
 
@@ -20,29 +21,31 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Delete all bets for the authenticated user (admin only)
+// Delete all bets from the database (admin only)
 router.delete('/', authorize('admin'), async (req, res) => {
-  await Bet.deleteMany({ user: req.user.id });
+  await Bet.deleteMany({});
   res.json({ message: 'All bets deleted' });
 });
 
-// Update a bet for the authenticated user
+// Update a bet - admin can update any bet
 router.put('/:id', async (req, res) => {
   try {
-    const updatedBet = await Bet.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id },
-      req.body,
-      { new: true }
-    );
+    const filter = req.user.role === 'admin'
+      ? { _id: req.params.id }
+      : { _id: req.params.id, user: req.user.id };
+    const updatedBet = await Bet.findOneAndUpdate(filter, req.body, { new: true });
     res.json(updatedBet);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// Delete a bet for the authenticated user
+// Delete a bet - admin can delete any bet
 router.delete('/:id', async (req, res) => {
-  await Bet.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+  const filter = req.user.role === 'admin'
+    ? { _id: req.params.id }
+    : { _id: req.params.id, user: req.user.id };
+  await Bet.findOneAndDelete(filter);
   res.json({ message: 'Bet deleted' });
 });
 
