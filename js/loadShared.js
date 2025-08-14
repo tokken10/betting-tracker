@@ -10,8 +10,6 @@ function getUser() {
 
 function applyUsername(container, username) {
   if (!username) return;
-  const userDisplay = container.querySelector('#current-user');
-  if (userDisplay) userDisplay.textContent = username;
 
   const profileName = container.querySelector('#profile-username');
   if (profileName) profileName.textContent = username;
