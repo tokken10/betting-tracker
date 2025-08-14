@@ -47,6 +47,14 @@ async function loadSharedComponents() {
         if (adminLink && user?.role !== 'admin') {
           adminLink.style.display = 'none';
         }
+
+        const navToggle = target.querySelector('.nav-toggle');
+        const navLinks = target.querySelector('.nav-links');
+        if (navToggle && navLinks) {
+          navToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+          });
+        }
       }
 
       // Profile-specific behavior
