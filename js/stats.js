@@ -26,7 +26,7 @@ export function updateStats() {
     el('roi').className = 'stat-value ' + (roi >= 0 ? 'positive' : 'negative');
   }
 
-  if (el('profile-avg-stake')) el('profile-avg-stake').textContent = '$' + avgStake;
+
 
   const profitBySport = {};
   for (let b of settled) {
@@ -34,7 +34,7 @@ export function updateStats() {
     profitBySport[b.sport] += b.profitLoss;
   }
   const bestSport = Object.entries(profitBySport).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
-  if (el('profile-best-sport')) el('profile-best-sport').textContent = bestSport;
+  if (el('bestSport')) el('bestSport').textContent = bestSport;
 
   let streak = 0;
   let maxStreak = 0;
@@ -46,5 +46,6 @@ export function updateStats() {
       streak = 0;
     }
   }
-  if (el('profile-win-streak')) el('profile-win-streak').textContent = maxStreak;
+  if (el('winStreak')) el('winStreak').textContent = maxStreak;
+  if (el('avgStake')) el('avgStake').textContent = '$' + avgStake;
 }
