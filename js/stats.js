@@ -27,6 +27,7 @@ export function updateStats() {
   }
 
 
+
   const profitBySport = {};
   for (let b of settled) {
     if (!profitBySport[b.sport]) profitBySport[b.sport] = 0;
