@@ -136,6 +136,16 @@ body {
   margin-bottom: 5px;
 }
 
+@media (max-width: 600px) {
+  .stats-bar {
+    font-size: 12px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+  }
+}
+
 .controls {
   padding: 20px;
   background: #ecf0f1;
