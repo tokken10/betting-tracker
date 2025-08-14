@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import connectDB from '../src/db.js';
