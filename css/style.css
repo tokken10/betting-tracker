@@ -97,8 +97,15 @@ body {
     font-size: 20px;
   }
 
+  .header .top-nav {
+    justify-content: flex-end;
+  }
+
   .header .nav-toggle {
     display: block;
+    margin-left: 10px;
+    order: 2;
+    font-size: 24px;
   }
 
   .header .nav-links {
@@ -126,6 +133,12 @@ body {
   .header .nav-icon-links {
     display: flex;
     align-items: center;
+    order: 1;
+    gap: 10px;
+  }
+
+  .header .nav-icon-links a {
+    font-size: 24px;
   }
 }
 
