@@ -26,6 +26,8 @@ export function updatePayoutPreview() {
     payoutInput.value = calculatePayout(oddsValue, stake).toFixed(2);
   } else if (outcome === 'Loss') {
     payoutInput.value = '0.00';
+  } else if (outcome === 'Push' && !isNaN(stake)) {
+    payoutInput.value = stake.toFixed(2);
   } else {
     payoutInput.value = '';
   }
@@ -60,6 +62,9 @@ export async function handleAddBet() {
   } else if (outcome === 'Loss') {
     payout = 0;
     profitLoss = -stake;
+  } else if (outcome === 'Push') {
+    payout = stake;
+    profitLoss = 0;
   }
 
   const bet = {

@@ -54,11 +54,25 @@ body {
     border-radius: 4px;
     background: rgba(255,255,255,0.1);
     transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .header .nav-links a:hover {
     background: rgba(255,255,255,0.25);
     text-decoration: none;
+  }
+
+  .header .nav-icon-links {
+    display: none;
+    gap: 10px;
+  }
+
+  .header .nav-icon-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
   }
 
  .header .learn-more-link {
@@ -107,6 +121,11 @@ body {
 
   .header .nav-links.open {
     display: flex;
+  }
+
+  .header .nav-icon-links {
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -253,6 +272,11 @@ tr:hover {
 .pending {
   background-color: #fff3cd !important;
   color: #856404;
+}
+
+.push {
+  background-color: #e2e3e5 !important;
+  color: #383d41;
 }
 
 .positive {
