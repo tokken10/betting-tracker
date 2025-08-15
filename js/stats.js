@@ -1,8 +1,9 @@
 import { bets } from './bets.js';
 
 export function updateStats() {
-  const settled = bets.filter(b => b.outcome === 'Win' || b.outcome === 'Loss');
-  const wins = settled.filter(b => b.outcome === 'Win').length;
+  const settled = bets.filter(b => ['Win', 'Loss', 'Push'].includes(b.outcome));
+  const decided = bets.filter(b => b.outcome === 'Win' || b.outcome === 'Loss');
+  const wins = decided.filter(b => b.outcome === 'Win').length;
   const totalStaked = settled.reduce((sum, b) => sum + b.stake, 0);
   const totalReturn = settled.reduce((sum, b) => sum + b.payout, 0);
   const netProfit = totalReturn - totalStaked;
@@ -12,7 +13,7 @@ export function updateStats() {
   const el = id => document.getElementById(id);
 
   if (el('totalBets')) el('totalBets').textContent = bets.length;
-  if (el('winRate')) el('winRate').textContent = settled.length ? ((wins / settled.length) * 100).toFixed(1) + '%' : '0%';
+  if (el('winRate')) el('winRate').textContent = decided.length ? ((wins / decided.length) * 100).toFixed(1) + '%' : '0%';
   if (el('totalStaked')) el('totalStaked').textContent = '$' + totalStaked.toFixed(2);
   if (el('totalReturn')) el('totalReturn').textContent = '$' + totalReturn.toFixed(2);
 
@@ -41,9 +42,10 @@ export function updateStats() {
     if (b.outcome === 'Win') {
       streak++;
       if (streak > maxStreak) maxStreak = streak;
-    } else {
+    } else if (b.outcome === 'Loss') {
       streak = 0;
     }
+    // Push leaves streak unchanged
   }
   if (el('winStreak')) el('winStreak').textContent = maxStreak;
   if (el('avgStake')) el('avgStake').textContent = '$' + avgStake;
