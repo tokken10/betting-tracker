@@ -67,9 +67,11 @@ app.get('/', (req, res) => {
 // Routes
 const betRoutes = require('./routes/bets');
 const userRoutes = require('./routes/users');
+const seedRoutes = require('./routes/seed');
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/bets', auth, betRoutes);
 app.use('/api/users', auth, userRoutes);
+app.use('/api/seed', auth, seedRoutes);
 
 // Start server
 app.listen(PORT, () => {
