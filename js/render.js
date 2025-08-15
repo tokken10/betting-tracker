@@ -51,13 +51,18 @@ export function renderBets() {
     const profitClass = bet.profitLoss > 0 ? 'positive' : bet.profitLoss < 0 ? 'negative' : '';
     const profitSymbol = bet.profitLoss > 0 ? '+' : '';
 
-    row.innerHTML = `
-      <td>${bet.outcome}</td>
-      <td class="description-cell">
-        <div class="description-content" title="${bet.description || ''}" onclick="showFullText(${JSON.stringify(bet.description || '')})">
-          ${bet.description || ''}
-        </div>
-      </td>
+      row.innerHTML = `
+        <td>${bet.outcome}</td>
+        <td class="event-cell">
+          <div class="event-content" title="${bet.event}" onclick="showFullText(${JSON.stringify(bet.event)})">
+            ${bet.event}
+          </div>
+        </td>
+        <td class="description-cell">
+          <div class="description-content" title="${bet.description || ''}" onclick="showFullText(${JSON.stringify(bet.description || '')})">
+            ${bet.description || ''}
+          </div>
+        </td>
       <td>${bet.betType}</td>
       <td>${bet.odds}</td>
       <td>$${parseFloat(bet.stake).toFixed(2)}</td>
@@ -65,13 +70,8 @@ export function renderBets() {
       <td class="${profitClass}">
         ${bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + parseFloat(bet.profitLoss).toFixed(2)}
       </td>
-      <td>${formatDate(bet.date)}</td>
-      <td class="event-cell">
-        <div class="event-content" title="${bet.event}" onclick="showFullText(${JSON.stringify(bet.event)})">
-          ${bet.event}
-        </div>
-      </td>
-      <td>${bet.sport}</td>
+        <td>${formatDate(bet.date)}</td>
+        <td>${bet.sport}</td>
       <td class="note-cell">
         <div class="note-content" title="${bet.note || ''}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
           ${bet.note || ''}
