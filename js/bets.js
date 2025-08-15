@@ -114,12 +114,13 @@ export async function settleBet(betId, newOutcome) {
 
 /** Export all bets to CSV */
 export function exportToCSV() {
-  const headers = ['Outcome', 'Description', 'Bet Type', 'Odds', 'Stake', 'Payout', 'Profit/Loss', 'Date', 'Event', 'Sport', 'Note'];
+  const headers = ['Outcome', 'Event', 'Description', 'Bet Type', 'Odds', 'Stake', 'Payout', 'Profit/Loss', 'Date', 'Sport', 'Note'];
 
   const csvContent = [
     headers.join(','),
     ...bets.map(bet => [
       bet.outcome,
+      `"${bet.event}"`,
       `"${bet.description || ''}"`,
       bet.betType,
       bet.odds,
@@ -127,7 +128,6 @@ export function exportToCSV() {
       parseFloat(bet.payout).toFixed(2),
       bet.outcome === 'Pending' ? '' : parseFloat(bet.profitLoss).toFixed(2),
       formatDate(bet.date),
-      `"${bet.event}"`,
       bet.sport,
       `"${bet.note || ''}"`
     ].join(','))
