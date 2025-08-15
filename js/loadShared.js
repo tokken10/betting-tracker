@@ -8,6 +8,7 @@ function getUser() {
   }
 }
 
+
 function populateProfileHeader(container, username) {
   if (!username) return;
   const profileName = container.querySelector('#profile-username');
@@ -62,7 +63,9 @@ async function loadSharedComponents() {
         const headerContainer = target.querySelector('.header');
         if (headerContainer) {
           headerContainer.insertAdjacentHTML('beforeend', profileHTML);
+
           populateProfileHeader(headerContainer, user?.username);
+
         }
 
         // Optionally hide default header title/subtitle
