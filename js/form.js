@@ -1,4 +1,4 @@
-import { addBet as addBetData, clearBets, calculatePayout } from './bets.js';
+import { addBet as addBetData, calculatePayout } from './bets.js';
 import { renderBets } from './render.js';
 import { updateStats } from './stats.js';
 
@@ -89,14 +89,6 @@ export async function handleAddBet() {
     clearForm();
   } catch (err) {
     console.error('❌ Error adding bet:', err.message);
-  }
-}
-
-export async function handleClearAll() {
-  if (confirm('Are you sure you want to clear all betting data? This cannot be undone.')) {
-    await clearBets();
-    renderBets();
-    await updateStats();
   }
 }
 
