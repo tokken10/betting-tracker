@@ -69,10 +69,21 @@ body {
     gap: 10px;
   }
 
-  .header .nav-icon-links a {
+  .header .nav-icon-links .icon-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+  }
+
+  .header .nav-icon-links .icon-btn a {
     color: white;
     text-decoration: none;
     font-size: 20px;
+    line-height: 1;
   }
 
  .header .learn-more-link {
@@ -137,7 +148,7 @@ body {
     gap: 10px;
   }
 
-  .header .nav-icon-links a {
+  .header .nav-icon-links .icon-btn a {
     font-size: 24px;
   }
 }
@@ -337,4 +348,16 @@ tr:hover {
 
 .modal-close {
   margin-top: 10px;
+}
+
+.bet-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+}
+
+@media (max-width: 500px) {
+  .bet-details-grid {
+    grid-template-columns: 1fr;
+  }
 }
