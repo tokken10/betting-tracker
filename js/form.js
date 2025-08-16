@@ -85,7 +85,7 @@ export async function handleAddBet() {
   try {
     await addBetData(bet);
     renderBets();
-    updateStats();
+    await updateStats();
     clearForm();
   } catch (err) {
     console.error('❌ Error adding bet:', err.message);
@@ -96,7 +96,7 @@ export async function handleClearAll() {
   if (confirm('Are you sure you want to clear all betting data? This cannot be undone.')) {
     await clearBets();
     renderBets();
-    updateStats();
+    await updateStats();
   }
 }
 
