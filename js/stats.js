@@ -1,3 +1,4 @@
+
 import { API_BASE_URL } from './config.js';
 
 async function fetchUserStats() {
@@ -12,8 +13,10 @@ async function fetchUserStats() {
   } catch (err) {
     console.error('❌ Error fetching user stats:', err.message);
     return null;
+
   }
 }
+
 
 export async function updateStats() {
   const user = await fetchUserStats();
@@ -42,6 +45,7 @@ export async function updateStats() {
     if (el('roi')) {
       el('roi').textContent = (roi >= 0 ? '+' : '') + roi.toFixed(1) + '%';
       el('roi').className = 'stat-value ' + (roi >= 0 ? 'positive' : 'negative');
+
     }
     if (el('bestSport')) el('bestSport').textContent = mostProfitable || '-';
     if (el('avgStake')) el('avgStake').textContent = '$' + avgStake.toFixed(2);

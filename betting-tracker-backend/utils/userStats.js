@@ -11,6 +11,7 @@ async function updateUserStats(userId) {
   const netProfit = totalReturn - totalStaked;
   const winRate = decided.length ? (wins / decided.length) * 100 : 0;
   const roi = totalStaked > 0 ? (netProfit / totalStaked) * 100 : 0;
+
   const avgStake = settled.length ? totalStaked / settled.length : 0;
 
   const profitBySport = {};
@@ -32,6 +33,7 @@ async function updateUserStats(userId) {
   }
   const winStreak = maxStreak;
 
+
   await User.findByIdAndUpdate(
     userId,
     {
@@ -45,6 +47,7 @@ async function updateUserStats(userId) {
         mostProfitable,
         avgStake,
         winStreak,
+
       },
     },
     { new: true }

@@ -14,6 +14,7 @@ const UserSchema = new mongoose.Schema({
     mostProfitable: { type: String, default: '-' },
     avgStake: { type: Number, default: 0 },
     winStreak: { type: Number, default: 0 }
+
   }
 });
 
