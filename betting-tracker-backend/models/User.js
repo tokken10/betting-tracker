@@ -10,7 +10,11 @@ const UserSchema = new mongoose.Schema({
     roi: { type: Number, default: 0 },
     totalStaked: { type: Number, default: 0 },
     totalReturn: { type: Number, default: 0 },
-    netProfit: { type: Number, default: 0 }
+    netProfit: { type: Number, default: 0 },
+    mostProfitable: { type: String, default: '-' },
+    avgStake: { type: Number, default: 0 },
+    winStreak: { type: Number, default: 0 }
+
   }
 });
 
