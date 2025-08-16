@@ -219,6 +219,15 @@ body {
   font-size: 14px;
 }
 
+.auth-link {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.auth-link a {
+  color: #3498db;
+}
+
 .btn {
   background: #3498db;
   color: white;
@@ -326,7 +335,7 @@ tr:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   display: none;
   align-items: center;
   justify-content: center;
@@ -338,16 +347,38 @@ tr:hover {
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
+  position: relative;
+  background: #fff;
+  padding: 30px;
   border-radius: 8px;
-  max-width: 90%;
+  max-width: 500px;
+  width: 90%;
   max-height: 80%;
   overflow-y: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal.active .modal-content {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .modal-close {
-  margin-top: 10px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+}
+
+.modal-close:hover {
+  color: #000;
 }
 
 .bet-details-grid {
