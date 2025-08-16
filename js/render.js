@@ -1,6 +1,7 @@
 import { bets, removeBet as removeBetData, settleBet as settleBetData } from './bets.js';
 import { updateStats } from './stats.js';
 import { formatDate } from './utils.js';
+import { showBetDetails } from './modal.js';
 
 export async function handleRemoveBet(id) {
   await removeBetData(id);
@@ -47,6 +48,7 @@ export function renderBets() {
   sorted.forEach(bet => {
     const row = document.createElement('tr');
     row.className = bet.outcome.toLowerCase();
+    row.tabIndex = 0;
 
     const profitClass = bet.profitLoss > 0 ? 'positive' : bet.profitLoss < 0 ? 'negative' : '';
     const profitSymbol = bet.profitLoss > 0 ? '+' : '';
@@ -93,6 +95,17 @@ export function renderBets() {
         }
       </td>
     `;
+
+    row.addEventListener('click', e => {
+      if (e.target.closest('button') || e.target.closest('select')) return;
+      showBetDetails(bet);
+    });
+    row.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showBetDetails(bet);
+      }
+    });
 
     tbody.appendChild(row);
   });
