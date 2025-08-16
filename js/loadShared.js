@@ -64,7 +64,14 @@ async function loadSharedComponents() {
         if (headerContainer) {
           headerContainer.insertAdjacentHTML('beforeend', profileHTML);
 
-          populateProfileHeader(headerContainer, user?.username);
+          if (user?.username) {
+            populateProfileHeader(headerContainer, user.username);
+          } else {
+            const profileContainer = headerContainer.querySelector('.profile-header-container');
+            if (profileContainer) {
+              profileContainer.innerHTML = '<a href="login.html" class="btn">Sign in to Track</a>';
+            }
+          }
 
         }
 
