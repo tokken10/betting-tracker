@@ -1,16 +1,31 @@
-<!-- Modal for viewing full text -->
-<div id="textModal" class="modal" onclick="closeModal()">
-  <div class="modal-content" onclick="event.stopPropagation();">
-    <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
-    <div id="modalText"></div>
+<!-- Enhanced Text Modal -->
+<div id="textModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="textModalTitle" aria-hidden="true" onclick="closeModal(event)">
+  <div class="modal-content" tabindex="-1" onclick="event.stopPropagation();">
+    <div class="modal-header">
+      <h2 id="textModalTitle" class="modal-title">
+        <span class="modal-icon">📄</span>
+        Full Text
+      </h2>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close modal">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalText" class="text-content"></div>
+    </div>
   </div>
 </div>
 
-<!-- Modal for viewing bet details -->
-<div id="betDetailsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="betDetailsTitle" onclick="closeModal()">
+<!-- Enhanced Bet Details Modal -->
+<div id="betDetailsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="betDetailsTitle" aria-hidden="true" onclick="closeModal(event)">
   <div class="modal-content" tabindex="-1" onclick="event.stopPropagation();">
-    <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
-    <h2 id="betDetailsTitle">Bet Details</h2>
-    <div id="betDetailsBody" class="bet-details-grid"></div>
+    <div class="modal-header">
+      <h2 id="betDetailsTitle" class="modal-title">
+        <span class="modal-icon">🎯</span>
+        Bet Details
+      </h2>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close modal">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="betDetailsBody" class="bet-details-grid"></div>
+    </div>
   </div>
 </div>

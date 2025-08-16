@@ -1,11 +1,12 @@
 import { formatDate } from './utils.js';
 
 let activeModal = null;
+let previousFocus = null;
 
 function handleKeyDown(e) {
   if (!activeModal) return;
   const focusable = activeModal.querySelectorAll(
-    'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
@@ -24,19 +25,36 @@ function handleKeyDown(e) {
 }
 
 function openModal(modal) {
+  previousFocus = document.activeElement;
   activeModal = modal;
   modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
   modal.addEventListener('keydown', handleKeyDown);
-  const focusable = modal.querySelectorAll(
-    'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  if (focusable[0]) focusable[0].focus();
+  const content = modal.querySelector('.modal-content');
+  if (content) content.focus();
+  document.body.style.overflow = 'hidden';
 }
 
-export function closeModal() {
+export function closeModal(event) {
+  if (event) {
+    if (event.target.classList.contains('modal')) {
+      // backdrop click
+    } else if (!event.target.closest('.modal-close') && !event.target.classList.contains('modal')) {
+      return;
+    }
+  }
+
   if (!activeModal) return;
   activeModal.classList.remove('active');
+  activeModal.setAttribute('aria-hidden', 'true');
   activeModal.removeEventListener('keydown', handleKeyDown);
+  document.body.style.overflow = '';
+
+  if (previousFocus) {
+    previousFocus.focus();
+    previousFocus = null;
+  }
+
   activeModal = null;
 }
 
@@ -53,19 +71,35 @@ export function showBetDetails(bet) {
   const modal = document.getElementById('betDetailsModal');
   const body = document.getElementById('betDetailsBody');
   if (modal && body) {
-    body.innerHTML = `
-      <div><strong>Outcome:</strong> ${bet.outcome}</div>
-      <div><strong>Description:</strong> ${bet.description || ''}</div>
-      <div><strong>Bet Type:</strong> ${bet.betType}</div>
-      <div><strong>Odds:</strong> ${bet.odds}</div>
-      <div><strong>Stake:</strong> $${parseFloat(bet.stake).toFixed(2)}</div>
-      <div><strong>Payout:</strong> $${parseFloat(bet.payout).toFixed(2)}</div>
-      <div><strong>Profit/Loss:</strong> ${bet.outcome === 'Pending' ? '—' : (bet.profitLoss > 0 ? '+' : '') + '$' + parseFloat(bet.profitLoss).toFixed(2)}</div>
-      <div><strong>Date:</strong> ${formatDate(bet.date)}</div>
-      <div><strong>Event:</strong> ${bet.event}</div>
-      <div><strong>Sport:</strong> ${bet.sport}</div>
-      <div><strong>Note:</strong> ${bet.note || ''}</div>
-    `;
+    const details = [
+      { label: 'Outcome', value: bet.outcome, class: `status ${bet.outcome.toLowerCase()}` },
+      { label: 'Description', value: bet.description || '', class: '' },
+      { label: 'Bet Type', value: bet.betType, class: '' },
+      { label: 'Odds', value: bet.odds, class: parseFloat(bet.odds) > 0 ? 'positive' : parseFloat(bet.odds) < 0 ? 'negative' : '' },
+      { label: 'Stake', value: `$${parseFloat(bet.stake).toFixed(2)}`, class: '' },
+      { label: 'Payout', value: `$${parseFloat(bet.payout).toFixed(2)}`, class: bet.payout > 0 ? 'positive' : '' },
+      {
+        label: 'Profit/Loss',
+        value: bet.outcome === 'Pending' ? '—' : (bet.profitLoss > 0 ? '+' : '') + '$' + parseFloat(bet.profitLoss).toFixed(2),
+        class: bet.outcome === 'Pending' ? '' : bet.profitLoss > 0 ? 'positive' : bet.profitLoss < 0 ? 'negative' : ''
+      },
+      { label: 'Date', value: formatDate(bet.date), class: '' },
+      { label: 'Event', value: bet.event, class: '' },
+      { label: 'Sport', value: bet.sport, class: '' },
+      { label: 'Note', value: bet.note || '', class: '' }
+    ];
+
+    body.innerHTML = '';
+    details.forEach(detail => {
+      const card = document.createElement('div');
+      card.className = 'detail-card';
+      card.innerHTML = `
+        <div class="detail-label">${detail.label}</div>
+        <div class="detail-value ${detail.class}">${detail.value}</div>
+      `;
+      body.appendChild(card);
+    });
+
     openModal(modal);
   }
 }
