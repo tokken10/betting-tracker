@@ -11,7 +11,7 @@ window.removeBet = handleRemoveBet;
 window.loadDemoData = async () => {
   loadDemoBets();
   renderBets();
-  updateStats();
+  await updateStats();
 };
 window.settleBet = handleSettleBet;
 window.showFullText = showFullText;
@@ -33,5 +33,5 @@ window.addEventListener('shared:loaded', async () => {
   }
 
   renderBets();
-  updateStats();
+  await updateStats();
 });

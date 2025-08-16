@@ -5,7 +5,7 @@ import { formatDate } from './utils.js';
 export async function handleRemoveBet(id) {
   await removeBetData(id);
   renderBets();
-  updateStats();
+  await updateStats();
 }
 
 export async function handleSettleBet(selectEl, betId) {
@@ -13,7 +13,7 @@ export async function handleSettleBet(selectEl, betId) {
   if (!newOutcome) return;
   await settleBetData(betId, newOutcome);
   renderBets();
-  updateStats();
+  await updateStats();
 }
 
 export function renderBets() {
