@@ -2,7 +2,7 @@ import { bets, fetchBets, loadDemoData as loadDemoBets, exportToCSV } from './be
 import { initForm, handleAddBet } from './form.js';
 import { renderBets, handleRemoveBet, handleSettleBet } from './render.js';
 import { updateStats } from './stats.js';
-import { showFullText, closeModal } from './modal.js';
+import { showFullText, closeModal, showLearnMore } from './modal.js';
 
 // Always make core functions globally available for buttons
 window.addBet = handleAddBet;
@@ -15,6 +15,7 @@ window.loadDemoData = async () => {
 window.settleBet = handleSettleBet;
 window.showFullText = showFullText;
 window.closeModal = closeModal;
+window.showLearnMore = showLearnMore;
 window.exportToCSV = exportToCSV;
 window.renderBets = renderBets;
 

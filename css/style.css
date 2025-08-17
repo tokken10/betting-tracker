@@ -92,6 +92,16 @@ body {
     font-size: 14px;
     display: inline-block;
     margin-top: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+ .header .learn-more-link:hover {
+    background: rgba(255,255,255,0.1);
+    text-decoration: none;
+    transform: translateY(-1px);
   }
 
 .header h1 {
@@ -543,14 +553,66 @@ tr:hover {
   color: #721c24;
 }
 
-.detail-value.status.pending {
+.detail-value.status.push {
   background: #fff3cd;
   color: #856404;
 }
 
-.detail-value.status.push {
-  background: #e2e3e5;
-  color: #383d41;
+.detail-value.status.pending {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+/* Learn More Modal Styles */
+.learn-more-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.learn-more-content h3 {
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 24px 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e8ecf0;
+}
+
+.learn-more-content h3:first-child {
+  margin-top: 0;
+}
+
+.learn-more-content p {
+  margin: 16px 0;
+  line-height: 1.7;
+  color: #495057;
+}
+
+.learn-more-content ul {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.learn-more-content li {
+  margin: 8px 0;
+  line-height: 1.6;
+  color: #495057;
+}
+
+.learn-more-content strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.learn-more-footer {
+  text-align: center;
+  font-weight: 600;
+  color: #3498db !important;
+  margin-top: 32px !important;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #3498db;
 }
 
 @keyframes slideInContent {

@@ -120,3 +120,10 @@ export function showBetDetails(bet) {
   }
 }
 
+export function showLearnMore() {
+  const modal = document.getElementById('learnMoreModal');
+  if (modal) {
+    openModal(modal);
+  }
+}
+
