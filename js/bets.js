@@ -144,6 +144,48 @@ export function exportToCSV() {
 
 /** Load hardcoded demo data (for local-only testing) */
 export function loadDemoData() {
-  // This can stay as-is for now. If you want to POST demo data to MongoDB, we can adapt it.
-  console.warn('⚠️ loadDemoData only works locally. It does not sync to backend.');
+  bets = [
+    {
+      _id: 'demo-1',
+      outcome: 'Win',
+      event: 'Eagles vs Giants',
+      description: 'Eagles -3.5',
+      betType: 'Point Spread',
+      odds: '-110',
+      stake: 110,
+      payout: calculatePayout('-110', 110),
+      profitLoss: calculatePayout('-110', 110) - 110,
+      date: '2024-01-15T00:00:00.000Z',
+      sport: 'NFL Football',
+      note: 'Sample win'
+    },
+    {
+      _id: 'demo-2',
+      outcome: 'Loss',
+      event: 'Lakers vs Celtics',
+      description: 'Lakers -2',
+      betType: 'Point Spread',
+      odds: '-105',
+      stake: 105,
+      payout: 0,
+      profitLoss: -105,
+      date: '2024-02-20T00:00:00.000Z',
+      sport: 'NBA Basketball',
+      note: 'Sample loss'
+    },
+    {
+      _id: 'demo-3',
+      outcome: 'Pending',
+      event: 'Yankees vs Red Sox',
+      description: 'Over 8.5',
+      betType: 'Over/Under',
+      odds: '-110',
+      stake: 110,
+      payout: 0,
+      profitLoss: 0,
+      date: '2024-03-10T00:00:00.000Z',
+      sport: 'Baseball',
+      note: ''
+    }
+  ];
 }
