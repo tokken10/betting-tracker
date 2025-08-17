@@ -58,11 +58,13 @@ export function closeModal(event) {
   activeModal = null;
 }
 
-export function showFullText(text) {
+export function showFullText(text, title = 'Full Text') {
   const modal = document.getElementById('textModal');
   const modalText = document.getElementById('modalText');
-  if (modal && modalText) {
+  const modalTitle = document.getElementById('textModalTitle');
+  if (modal && modalText && modalTitle) {
     modalText.textContent = text || '';
+    modalTitle.innerHTML = `<span class="modal-icon">📄</span>${title}`;
     openModal(modal);
   }
 }

@@ -52,6 +52,18 @@ async function loadSharedComponents() {
             navLinks.classList.toggle('open');
           });
         }
+
+        const learnMoreLink = target.querySelector('#learn-more-link');
+        if (learnMoreLink) {
+          learnMoreLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const text =
+              'Track your bets meticulously for better bankroll management. Keeping detailed records allows you to analyze performance, discover patterns, and maintain discipline.';
+            if (window.showFullText) {
+              window.showFullText(text, 'About This Tracker');
+            }
+          });
+        }
       }
 
       // Profile-specific behavior
