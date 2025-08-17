@@ -450,6 +450,17 @@ tr:hover {
   margin-top: 20px;
 }
 
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-actions select {
+  padding: 8px;
+}
+
 .detail-card {
   background: #f8f9fa;
   border-radius: 10px;

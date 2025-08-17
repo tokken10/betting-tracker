@@ -73,31 +73,15 @@ export function renderBets() {
         ${bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + parseFloat(bet.profitLoss).toFixed(2)}
       </td>
         <td>${formatDate(bet.date)}</td>
-        <td>${bet.sport}</td>
+      <td>${bet.sport}</td>
       <td class="note-cell">
         <div class="note-content" title="${bet.note || ''}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
           ${bet.note || ''}
         </div>
       </td>
-      <td>
-        ${
-          bet.outcome === 'Pending'
-            ? `
-              <select onchange="settleBet(this, '${bet._id}')">
-                <option value="">Settle</option>
-                <option value="Win">Win</option>
-                <option value="Loss">Loss</option>
-                <option value="Push">Push</option>
-              </select>
-              <button class="btn btn-danger" onclick="removeBet('${bet._id}')">Remove</button>
-            `
-            : `<button class="btn btn-danger" onclick="removeBet('${bet._id}')">Remove</button>`
-        }
-      </td>
     `;
 
-    row.addEventListener('click', e => {
-      if (e.target.closest('button') || e.target.closest('select')) return;
+    row.addEventListener('click', () => {
       showBetDetails(bet);
     });
     row.addEventListener('keydown', e => {
