@@ -90,16 +90,6 @@ export function showBetDetails(bet) {
     ];
 
     body.innerHTML = '';
-    details.forEach(detail => {
-      const card = document.createElement('div');
-      card.className = 'detail-card';
-      card.innerHTML = `
-        <div class="detail-label">${detail.label}</div>
-        <div class="detail-value ${detail.class}">${detail.value}</div>
-      `;
-      body.appendChild(card);
-    });
-
     const actions = document.createElement('div');
     actions.className = 'modal-actions';
     actions.innerHTML =
@@ -115,6 +105,16 @@ export function showBetDetails(bet) {
         `
         : `<button class="btn btn-danger" onclick="removeBet('${bet._id}'); closeModal();">Remove</button>`;
     body.appendChild(actions);
+
+    details.forEach(detail => {
+      const card = document.createElement('div');
+      card.className = 'detail-card';
+      card.innerHTML = `
+        <div class="detail-label">${detail.label}</div>
+        <div class="detail-value ${detail.class}">${detail.value}</div>
+      `;
+      body.appendChild(card);
+    });
 
     openModal(modal);
   }
