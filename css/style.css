@@ -279,17 +279,17 @@ td {
   border-bottom: 1px solid #ecf0f1;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1000px) {
   table {
     font-size: 14px;
   }
 
   th {
-    padding: 16px 12px;
+    padding: 18px 05px;
   }
 
   td {
-    padding: 14px 12px;
+    padding: 18px 05px;
   }
 }
 
