@@ -100,6 +100,22 @@ export function showBetDetails(bet) {
       body.appendChild(card);
     });
 
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    actions.innerHTML =
+      bet.outcome === 'Pending'
+        ? `
+          <select onchange="settleBet(this, '${bet._id}'); closeModal();">
+            <option value="">Settle</option>
+            <option value="Win">Win</option>
+            <option value="Loss">Loss</option>
+            <option value="Push">Push</option>
+          </select>
+          <button class="btn btn-danger" onclick="removeBet('${bet._id}'); closeModal();">Remove</button>
+        `
+        : `<button class="btn btn-danger" onclick="removeBet('${bet._id}'); closeModal();">Remove</button>`;
+    body.appendChild(actions);
+
     openModal(modal);
   }
 }
