@@ -69,9 +69,17 @@ export async function updateStats() {
   let stats = null;
   if (!token || isDemoMode) {
     stats = calculateDemoStats();
+    localStorage.setItem('stats', JSON.stringify(stats));
   } else {
     const user = await fetchUserStats();
     stats = user?.stats;
+    if (!stats) {
+      // API failed, fallback to local
+      stats = calculateDemoStats();
+      localStorage.setItem('stats', JSON.stringify(stats));
+    } else {
+      localStorage.removeItem('stats');
+    }
   }
 
   if (stats) {

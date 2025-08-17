@@ -1,5 +1,6 @@
 import { formatDate } from './utils.js';
 import { API_BASE_URL } from './config.js';
+
 export let bets = [];
 
 const API_URL = `${API_BASE_URL}/bets`;
@@ -9,15 +10,31 @@ function authHeaders(extra = {}) {
   return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
 }
 
-/** Fetch all bets from the backend */
+function saveLocal() {
+  localStorage.setItem('bets', JSON.stringify(bets));
+}
+
+function loadLocal() {
+  bets = JSON.parse(localStorage.getItem('bets') || '[]');
+}
+
+/** Fetch all bets from the backend or local storage */
 export async function fetchBets() {
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    loadLocal();
+    return;
+  }
+
   try {
     const res = await fetch(API_URL, { headers: authHeaders() });
     if (!res.ok) throw new Error('Failed to fetch bets');
     bets = await res.json();
+    saveLocal(); // keep a local copy for offline use
   } catch (err) {
-    console.error('❌ Error fetching bets:', err.message);
-    bets = [];
+    console.error('❌ Error fetching bets from API, falling back to local:', err.message);
+    loadLocal();
   }
 }
 
@@ -41,39 +58,67 @@ export function calculatePayout(odds, stake) {
 
 /** Add a new bet */
 export async function addBet(bet) {
+  const token = localStorage.getItem('token');
+
+  // ensure local id for unsynced bets
+  if (!bet._id) bet._id = `local-${Date.now()}`;
+
+  if (!token) {
+    bets.push(bet);
+    saveLocal();
+    return;
+  }
+
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(bet),
     });
+
+    if (!res.ok) throw new Error('Failed to save bet to API');
+
     const savedBet = await res.json();
     bets.push(savedBet);
+    saveLocal();
   } catch (err) {
-    console.error('❌ Error adding bet:', err.message);
+    console.error('❌ Error adding bet to API, saving locally:', err.message);
+    bets.push(bet);
+    saveLocal();
   }
 }
 
 /** Remove a bet by _id */
 export async function removeBet(betId) {
+  const token = localStorage.getItem('token');
+
+  bets = bets.filter(b => b._id !== betId);
+  saveLocal();
+
+  if (!token || betId.startsWith('local-')) return; // nothing to delete on server
+
   try {
     await fetch(`${API_URL}/${betId}`, {
       method: 'DELETE',
       headers: authHeaders(),
     });
-    bets = bets.filter(b => b._id !== betId);
   } catch (err) {
-    console.error('❌ Error removing bet:', err.message);
+    console.error('❌ Error removing bet from API:', err.message);
   }
 }
 
 /** Clear all bets */
 export async function clearBets() {
   bets = [];
+  saveLocal();
+
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
   try {
     await fetch(API_URL, { method: 'DELETE', headers: authHeaders() });
   } catch (err) {
-    console.error('❌ Error clearing bets:', err.message);
+    console.error('❌ Error clearing bets on API:', err.message);
   }
 }
 
@@ -95,6 +140,14 @@ export async function settleBet(betId, newOutcome) {
     bet.profitLoss = 0;
   }
 
+  const token = localStorage.getItem('token');
+
+  const index = bets.findIndex(b => b._id === betId);
+  if (index !== -1) bets[index] = bet;
+  saveLocal();
+
+  if (!token || betId.startsWith('local-')) return;
+
   try {
     const res = await fetch(`${API_URL}/${betId}`, {
       method: 'PUT',
@@ -102,13 +155,15 @@ export async function settleBet(betId, newOutcome) {
       body: JSON.stringify(bet),
     });
 
-    const updatedBet = await res.json();
-    const index = bets.findIndex(b => b._id === betId);
-    if (index !== -1) {
-      bets[index] = updatedBet;
+    if (res.ok) {
+      const updatedBet = await res.json();
+      if (index !== -1) bets[index] = updatedBet;
+      saveLocal();
+    } else {
+      throw new Error('Failed to update bet');
     }
   } catch (err) {
-    console.error('❌ Error settling bet:', err.message);
+    console.error('❌ Error settling bet on API:', err.message);
   }
 }
 
@@ -258,4 +313,31 @@ export function loadDemoData() {
       note: 'Push sample'
     }
   ];
+  saveLocal();
+}
+
+/** Merge local bets into the authenticated user's account */
+export async function mergeLocalBets() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  const local = JSON.parse(localStorage.getItem('bets') || '[]');
+  if (local.length === 0) return;
+
+  for (const bet of local) {
+    try {
+      const { _id, ...payload } = bet; // server will generate new _id
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Failed to sync bet');
+    } catch (err) {
+      console.error('❌ Error syncing local bet:', err.message);
+    }
+  }
+
+  localStorage.removeItem('bets');
+  localStorage.removeItem('stats');
 }

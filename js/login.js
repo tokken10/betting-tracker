@@ -1,4 +1,5 @@
 import { API_BASE_URL } from './config.js';
+import { mergeLocalBets } from './bets.js';
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -16,6 +17,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 
     const data = await res.json();
     localStorage.setItem('token', data.token);
+    await mergeLocalBets();
     window.location.href = 'index.html';
   } catch (err) {
     console.error('❌ Login error:', err.message);

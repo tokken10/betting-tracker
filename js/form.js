@@ -68,7 +68,6 @@ export async function handleAddBet() {
   }
 
   const bet = {
-    id: Date.now(),
     date,
     sport,
     event,

@@ -25,9 +25,8 @@ initForm();
 // Wait for shared HTML components before loading bets
 window.addEventListener('shared:loaded', async () => {
   const isDemoMode = new URLSearchParams(window.location.search).get('demo');
-  const token = localStorage.getItem('token');
 
-  if (isDemoMode || !token) {
+  if (isDemoMode) {
     loadDemoBets();
   } else {
     await fetchBets();
