@@ -186,6 +186,76 @@ export function loadDemoData() {
       date: '2024-03-10T00:00:00.000Z',
       sport: 'Baseball',
       note: ''
+    },
+    {
+      _id: 'demo-4',
+      outcome: 'Win',
+      event: 'Packers vs Bears',
+      description: 'Packers ML',
+      betType: 'Moneyline',
+      odds: '+120',
+      stake: 100,
+      payout: calculatePayout('+120', 100),
+      profitLoss: calculatePayout('+120', 100) - 100,
+      date: '2024-04-12T00:00:00.000Z',
+      sport: 'NFL Football',
+      note: 'Dog hits'
+    },
+    {
+      _id: 'demo-5',
+      outcome: 'Loss',
+      event: 'Knicks vs Bulls',
+      description: 'Over 210.5',
+      betType: 'Over/Under',
+      odds: '-110',
+      stake: 110,
+      payout: 0,
+      profitLoss: -110,
+      date: '2024-05-01T00:00:00.000Z',
+      sport: 'NBA Basketball',
+      note: 'High scoring attempt'
+    },
+    {
+      _id: 'demo-6',
+      outcome: 'Pending',
+      event: 'Patriots vs Dolphins',
+      description: 'Under 43.5',
+      betType: 'Over/Under',
+      odds: '-105',
+      stake: 105,
+      payout: 0,
+      profitLoss: 0,
+      date: '2024-06-15T00:00:00.000Z',
+      sport: 'NFL Football',
+      note: ''
+    },
+    {
+      _id: 'demo-7',
+      outcome: 'Win',
+      event: 'Hurricanes vs Penguins',
+      description: 'Hurricanes +1.5',
+      betType: 'Puck Line',
+      odds: '-130',
+      stake: 130,
+      payout: calculatePayout('-130', 130),
+      profitLoss: calculatePayout('-130', 130) - 130,
+      date: '2024-07-20T00:00:00.000Z',
+      sport: 'NHL Hockey',
+      note: 'Sample hockey win'
+    },
+    {
+      _id: 'demo-8',
+      outcome: 'Push',
+      event: 'Spain vs France',
+      description: 'Spain +1',
+      betType: 'Point Spread',
+      odds: '-110',
+      stake: 110,
+      payout: 110,
+      profitLoss: 0,
+      date: '2024-08-05T00:00:00.000Z',
+      sport: 'Soccer',
+      note: 'Push sample'
     }
   ];
 }
