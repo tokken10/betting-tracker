@@ -24,7 +24,8 @@ async function loadSharedComponents() {
     stats: 'shared/stats-bar.html',
     sort: 'shared/sort-controls.html',
     table: 'shared/table.html',
-    modal: 'shared/modal.html'
+    modal: 'shared/modal.html',
+    footer: 'shared/footer.html'
   };
 
   const loadPromises = Object.entries(includes).map(async ([key, path]) => {
@@ -38,6 +39,12 @@ async function loadSharedComponents() {
       target.innerHTML = html;
 
       const user = getUser();
+
+      if (key === 'footer') {
+        const desc = target.dataset.description;
+        const descEl = target.querySelector('.footer-description');
+        if (descEl && desc) descEl.textContent = desc;
+      }
 
       if (key === 'header') {
         const adminLink = target.querySelector('a[href="admin.html"]');
