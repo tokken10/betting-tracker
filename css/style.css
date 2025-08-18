@@ -685,3 +685,33 @@ tr:hover {
 .modal-body::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+.footer {
+  margin-top: 40px;
+  padding: 20px;
+  background: #808080;
+  color: white;
+  text-align: center;
+}
+
+.footer-nav {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.footer-nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.footer-nav a:hover {
+  background: rgba(255,255,255,0.1);
+  text-decoration: none;
+}
