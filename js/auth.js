@@ -14,10 +14,14 @@ function updateAuthUI() {
     if (signupBtn) signupBtn.style.display = 'none';
     if (logoutBtn) {
       logoutBtn.style.display = 'inline-block';
-      logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        location.reload();
-      }, { once: true });
+      logoutBtn.addEventListener(
+        'click',
+        () => {
+          localStorage.removeItem('token');
+          window.location.href = '/index.html';
+        },
+        { once: true }
+      );
     }
     if (addBetBtn) addBetBtn.style.display = 'inline-block';
     if (signInBtn) signInBtn.style.display = 'none';
