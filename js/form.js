@@ -2,6 +2,8 @@ import { addBet as addBetData, calculatePayout } from './bets.js';
 import { renderBets } from './render.js';
 import { updateStats } from './stats.js';
 
+const FORM_FIELDS = ['date', 'sport', 'event', 'betType', 'odds', 'stake', 'outcome', 'description', 'note'];
+
 export function initForm() {
   const outcomeEl = document.getElementById('outcome');
   const oddsEl = document.getElementById('odds');
@@ -10,6 +12,40 @@ export function initForm() {
     outcomeEl.addEventListener('change', updatePayoutPreview);
     oddsEl.addEventListener('input', updatePayoutPreview);
     stakeEl.addEventListener('input', updatePayoutPreview);
+  }
+
+  restoreFormData();
+}
+
+export function saveFormData() {
+  const data = {};
+  FORM_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) data[id] = el.value;
+  });
+  try {
+    localStorage.setItem('pendingBet', JSON.stringify(data));
+  } catch (err) {
+    console.error('❌ Error saving form data:', err.message);
+  }
+}
+
+function restoreFormData() {
+  try {
+    const raw = localStorage.getItem('pendingBet');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id] !== undefined) {
+        el.value = data[id];
+      }
+    });
+    updatePayoutPreview();
+  } catch (err) {
+    console.error('❌ Error restoring form data:', err.message);
+  } finally {
+    localStorage.removeItem('pendingBet');
   }
 }
 
