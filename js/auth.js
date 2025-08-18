@@ -28,7 +28,14 @@ function updateAuthUI() {
   } else {
     if (logoutBtn) logoutBtn.style.display = 'none';
     if (addBetBtn) addBetBtn.style.display = 'none';
-    if (signInBtn) signInBtn.style.display = 'inline-block';
+    if (signInBtn) {
+      signInBtn.style.display = 'inline-block';
+      signInBtn.addEventListener('click', () => {
+        if (typeof window.saveFormData === 'function') {
+          window.saveFormData();
+        }
+      }, { once: true });
+    }
   }
 }
 
