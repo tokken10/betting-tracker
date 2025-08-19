@@ -3,6 +3,25 @@ import { updateStats } from './stats.js';
 import { formatDate, escapeHtml } from './utils.js';
 import { showBetDetails } from './modal.js';
 
+export function showTableLoading(rows = 5) {
+  const tbody = document.getElementById('betsTable');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  for (let i = 0; i < rows; i++) {
+    const row = document.createElement('tr');
+    row.className = 'loading-row';
+
+    for (let j = 0; j < 11; j++) {
+      const cell = document.createElement('td');
+      cell.innerHTML = '<div class="loading-placeholder"></div>';
+      row.appendChild(cell);
+    }
+
+    tbody.appendChild(row);
+  }
+}
+
 export async function handleRemoveBet(id) {
   await removeBetData(id);
   renderBets();
