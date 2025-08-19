@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import Bet from '../models/Bet.js';
 import authorize from '../middleware/authorize.js';
+import logger from '../utils/logger.js';
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.get('/', async (req, res) => {
     const bets = await Bet.find({ user: req.user.id });
     res.json(bets);
   } catch (err) {
+    logger.error(err);
     res.status(500).json({ error: 'Failed to fetch bets' });
   }
 });
@@ -29,7 +31,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const validationError = validateBet(req.body);
   if (validationError) {
-    console.error('Validation error:', validationError);
+    logger.warn('Validation error:', validationError);
     return res.status(400).json({ error: validationError });
   }
   try {
@@ -37,7 +39,7 @@ router.post('/', async (req, res) => {
     await newBet.save();
     res.status(201).json(newBet);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(400).json({ error: err.message });
   }
 });
@@ -50,6 +52,7 @@ router.delete('/', authorize('admin'), async (req, res) => {
     await Bet.deleteMany({ user: req.user.id });
     res.json({ message: 'All bets deleted' });
   } catch (err) {
+    logger.error(err);
     res.status(500).json({ error: 'Failed to delete bets' });
   }
 });
@@ -57,7 +60,7 @@ router.delete('/', authorize('admin'), async (req, res) => {
 router.put('/:id', async (req, res) => {
   const validationError = validateBet(req.body);
   if (validationError) {
-    console.error('Validation error:', validationError);
+    logger.warn('Validation error:', validationError);
     return res.status(400).json({ error: validationError });
   }
   try {
@@ -68,7 +71,7 @@ router.put('/:id', async (req, res) => {
     );
     res.json(updatedBet);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(400).json({ error: err.message });
   }
 });

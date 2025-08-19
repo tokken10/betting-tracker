@@ -2,6 +2,7 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const mongoose = require('mongoose');
 const Bet = require('../models/Bet');
+const logger = require('../utils/logger');
 
 const bets = [
   {
@@ -179,9 +180,9 @@ async function insertBets() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     const result = await Bet.insertMany(bets);
-    console.log(`${result.length} bets inserted`);
+    logger.info(`${result.length} bets inserted`);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   } finally {
     await mongoose.disconnect();
   }

@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import connectDB from '../src/db.js';
 import Bet from '../src/models/Bet.js';
+import logger from '../src/utils/logger.js';
 
 const userId = process.argv[2] || process.env.USER_ID;
 if (!userId) {
-  console.error('Usage: node scripts/assignUserToBets.js <userId>');
+  logger.error('Usage: node scripts/assignUserToBets.js <userId>');
   process.exit(1);
 }
 
@@ -15,9 +16,9 @@ if (!userId) {
       { user: { $exists: false } },
       { $set: { user: userId } }
     );
-    console.log(`Updated ${result.modifiedCount} bets`);
+    logger.info(`Updated ${result.modifiedCount} bets`);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   } finally {
     await mongoose.disconnect();
   }
