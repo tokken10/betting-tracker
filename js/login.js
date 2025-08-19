@@ -11,7 +11,10 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
-
+    if (res.status === 429) {
+      alert('Too many login attempts. Please try again later.');
+      return;
+    }
     if (!res.ok) throw new Error('Login failed');
 
     const data = await res.json();
@@ -19,6 +22,6 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     window.location.href = 'index.html';
   } catch (err) {
     console.error('❌ Login error:', err.message);
-    alert('Login failed. Please check your credentials.');
+    alert(err.message || 'Login failed. Please check your credentials.');
   }
 });
