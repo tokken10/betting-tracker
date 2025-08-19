@@ -5,6 +5,7 @@ function updateAuthUI() {
   const logoutBtn = document.getElementById('logout-btn');
   const addBetBtn = document.getElementById('add-bet-btn');
   const signInBtn = document.getElementById('sign-in-btn');
+  const usernameEl = document.getElementById('username-display');
 
   const token = localStorage.getItem('token');
   const isLoggedIn = Boolean(token);
@@ -23,10 +24,17 @@ function updateAuthUI() {
         { once: true }
       );
     }
+    if (usernameEl) {
+      try {
+        const { username } = JSON.parse(atob(token.split('.')[1]));
+        usernameEl.textContent = `Logged in as ${username}`;
+      } catch {}
+    }
     if (addBetBtn) addBetBtn.style.display = 'inline-block';
     if (signInBtn) signInBtn.style.display = 'none';
   } else {
     if (logoutBtn) logoutBtn.style.display = 'none';
+    if (usernameEl) usernameEl.textContent = '';
     if (addBetBtn) addBetBtn.style.display = 'none';
     if (signInBtn) {
       signInBtn.style.display = 'inline-block';
