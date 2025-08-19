@@ -352,6 +352,13 @@ tr:hover {
   font-weight: bold;
 }
 
+.empty-state td {
+  text-align: center;
+  padding: 20px;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
 .download-section {
   padding: 20px;
   text-align: center;

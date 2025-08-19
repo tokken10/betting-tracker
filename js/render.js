@@ -45,6 +45,14 @@ export function renderBets() {
     return 0;
   });
 
+  if (sorted.length === 0) {
+    const emptyRow = document.createElement('tr');
+    emptyRow.className = 'empty-state';
+    emptyRow.innerHTML = `<td colspan="11">No bets yet. Add your first bet to start tracking!</td>`;
+    tbody.appendChild(emptyRow);
+    return;
+  }
+
   sorted.forEach(bet => {
     const row = document.createElement('tr');
     row.className = bet.outcome.toLowerCase();
