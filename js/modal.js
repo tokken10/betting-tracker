@@ -86,7 +86,7 @@ export function showBetDetails(bet) {
       { label: 'Date', value: formatDate(bet.date), class: '' },
       { label: 'Event', value: bet.event, class: '' },
       { label: 'Sport', value: bet.sport, class: '' },
-      { label: 'Note', value: bet.note || '', class: '' }
+      { label: 'Note', value: bet.note || '', class: '', fullWidth: true }
     ];
 
     body.innerHTML = '';
@@ -109,6 +109,7 @@ export function showBetDetails(bet) {
     details.forEach(detail => {
       const card = document.createElement('div');
       card.className = 'detail-card';
+      if (detail.fullWidth) card.classList.add('full-width');
       card.innerHTML = `
         <div class="detail-label">${detail.label}</div>
         <div class="detail-value ${detail.class}">${detail.value}</div>
