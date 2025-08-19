@@ -13,8 +13,8 @@ async function fetchUserStats() {
     return await res.json();
   } catch (err) {
     console.error('❌ Error fetching user stats:', err.message);
+    alert(err.message || 'Failed to fetch user stats');
     return null;
-
   }
 }
 

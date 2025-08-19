@@ -18,6 +18,7 @@ export async function fetchBets() {
   } catch (err) {
     console.error('❌ Error fetching bets:', err.message);
     bets = [];
+    alert(err.message || 'Failed to fetch bets');
   }
 }
 
@@ -51,6 +52,7 @@ export async function addBet(bet) {
     bets.push(savedBet);
   } catch (err) {
     console.error('❌ Error adding bet:', err.message);
+    alert(err.message || 'Failed to add bet');
   }
 }
 
@@ -64,6 +66,7 @@ export async function removeBet(betId) {
     bets = bets.filter(b => b._id !== betId);
   } catch (err) {
     console.error('❌ Error removing bet:', err.message);
+    alert(err.message || 'Failed to remove bet');
   }
 }
 
@@ -74,6 +77,7 @@ export async function clearBets() {
     await fetch(API_URL, { method: 'DELETE', headers: authHeaders() });
   } catch (err) {
     console.error('❌ Error clearing bets:', err.message);
+    alert(err.message || 'Failed to clear bets');
   }
 }
 
@@ -109,6 +113,7 @@ export async function settleBet(betId, newOutcome) {
     }
   } catch (err) {
     console.error('❌ Error settling bet:', err.message);
+    alert(err.message || 'Failed to update bet');
   }
 }
 
