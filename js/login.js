@@ -1,4 +1,9 @@
 import { API_BASE_URL } from './config.js';
+import { showLearnMore, closeModal } from './modal.js';
+
+// Ensure shared header links work
+window.showLearnMore = showLearnMore;
+window.closeModal = closeModal;
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
