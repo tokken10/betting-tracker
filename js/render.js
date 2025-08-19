@@ -1,6 +1,6 @@
 import { bets, removeBet as removeBetData, settleBet as settleBetData } from './bets.js';
 import { updateStats } from './stats.js';
-import { formatDate } from './utils.js';
+import { formatDate, escapeHtml } from './utils.js';
 import { showBetDetails } from './modal.js';
 
 export async function handleRemoveBet(id) {
@@ -53,30 +53,38 @@ export function renderBets() {
     const profitClass = bet.profitLoss > 0 ? 'positive' : bet.profitLoss < 0 ? 'negative' : '';
     const profitSymbol = bet.profitLoss > 0 ? '+' : '';
 
-      row.innerHTML = `
-        <td>${bet.outcome}</td>
-        <td class="event-cell">
-          <div class="event-content" title="${bet.event}" onclick="showFullText(${JSON.stringify(bet.event)})">
-            ${bet.event}
-          </div>
-        </td>
-        <td class="description-cell">
-          <div class="description-content" title="${bet.description || ''}" onclick="showFullText(${JSON.stringify(bet.description || '')})">
-            ${bet.description || ''}
-          </div>
-        </td>
-      <td>${bet.betType}</td>
-      <td>${bet.odds}</td>
+    const safeOutcome = escapeHtml(bet.outcome);
+    const safeEvent = escapeHtml(bet.event);
+    const safeDescription = escapeHtml(bet.description || '');
+    const safeBetType = escapeHtml(bet.betType);
+    const safeOdds = escapeHtml(bet.odds);
+    const safeSport = escapeHtml(bet.sport);
+    const safeNote = escapeHtml(bet.note || '');
+
+    row.innerHTML = `
+      <td>${safeOutcome}</td>
+      <td class="event-cell">
+        <div class="event-content" title="${safeEvent}" onclick="showFullText(${JSON.stringify(bet.event)})">
+          ${safeEvent}
+        </div>
+      </td>
+      <td class="description-cell">
+        <div class="description-content" title="${safeDescription}" onclick="showFullText(${JSON.stringify(bet.description || '')})">
+          ${safeDescription}
+        </div>
+      </td>
+      <td>${safeBetType}</td>
+      <td>${safeOdds}</td>
       <td>$${parseFloat(bet.stake).toFixed(2)}</td>
       <td>$${parseFloat(bet.payout).toFixed(2)}</td>
       <td class="${profitClass}">
         ${bet.outcome === 'Pending' ? '—' : profitSymbol + '$' + parseFloat(bet.profitLoss).toFixed(2)}
       </td>
-        <td>${formatDate(bet.date)}</td>
-      <td>${bet.sport}</td>
+      <td>${formatDate(bet.date)}</td>
+      <td>${safeSport}</td>
       <td class="note-cell">
-        <div class="note-content" title="${bet.note || ''}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
-          ${bet.note || ''}
+        <div class="note-content" title="${safeNote}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
+          ${safeNote}
         </div>
       </td>
     `;

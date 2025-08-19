@@ -1,4 +1,4 @@
-import { formatDate } from './utils.js';
+import { formatDate, escapeHtml } from './utils.js';
 
 let activeModal = null;
 let previousFocus = null;
@@ -72,10 +72,10 @@ export function showBetDetails(bet) {
   const body = document.getElementById('betDetailsBody');
   if (modal && body) {
     const details = [
-      { label: 'Outcome', value: bet.outcome, class: `status ${bet.outcome.toLowerCase()}` },
-      { label: 'Description', value: bet.description || '', class: '' },
-      { label: 'Bet Type', value: bet.betType, class: '' },
-      { label: 'Odds', value: bet.odds, class: parseFloat(bet.odds) > 0 ? 'positive' : parseFloat(bet.odds) < 0 ? 'negative' : '' },
+      { label: 'Outcome', value: escapeHtml(bet.outcome), class: `status ${bet.outcome.toLowerCase()}` },
+      { label: 'Description', value: escapeHtml(bet.description || ''), class: '' },
+      { label: 'Bet Type', value: escapeHtml(bet.betType), class: '' },
+      { label: 'Odds', value: escapeHtml(bet.odds), class: parseFloat(bet.odds) > 0 ? 'positive' : parseFloat(bet.odds) < 0 ? 'negative' : '' },
       { label: 'Stake', value: `$${parseFloat(bet.stake).toFixed(2)}`, class: '' },
       { label: 'Payout', value: `$${parseFloat(bet.payout).toFixed(2)}`, class: bet.payout > 0 ? 'positive' : '' },
       {
@@ -84,9 +84,9 @@ export function showBetDetails(bet) {
         class: bet.outcome === 'Pending' ? '' : bet.profitLoss > 0 ? 'positive' : bet.profitLoss < 0 ? 'negative' : ''
       },
       { label: 'Date', value: formatDate(bet.date), class: '' },
-      { label: 'Event', value: bet.event, class: '' },
-      { label: 'Sport', value: bet.sport, class: '' },
-      { label: 'Note', value: bet.note || '', class: '', fullWidth: true }
+      { label: 'Event', value: escapeHtml(bet.event), class: '' },
+      { label: 'Sport', value: escapeHtml(bet.sport), class: '' },
+      { label: 'Note', value: escapeHtml(bet.note || ''), class: '', fullWidth: true }
     ];
 
     body.innerHTML = '';
