@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import Bet from '../models/Bet.js';
-import authorize from '../middleware/authorize.js';
 import logger from '../utils/logger.js';
 
 const router = Router();
@@ -44,11 +43,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.delete('/', authorize('admin'), async (req, res) => {
+router.delete('/', async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
     await Bet.deleteMany({ user: req.user.id });
     res.json({ message: 'All bets deleted' });
   } catch (err) {
