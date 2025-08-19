@@ -27,6 +27,7 @@ async function loadUsers() {
     document.getElementById('user-count-header').textContent = `Total Users: ${users.length}`;
   } catch (err) {
     console.error(err);
+    alert(err.message || 'Failed to load users');
   }
 }
 

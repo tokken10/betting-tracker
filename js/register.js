@@ -32,6 +32,6 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     window.location.href = 'index.html';
   } catch (err) {
     console.error('❌ Registration error:', err.message);
-    alert('Registration failed. Please try again.');
+    alert(err.message || 'Registration failed. Please try again.');
   }
 });
