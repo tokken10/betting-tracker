@@ -70,6 +70,20 @@ export async function removeBet(betId) {
   }
 }
 
+/** Remove all bets for the current user */
+export async function clearBets() {
+  try {
+    await fetch(API_URL, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    bets = [];
+  } catch (err) {
+    console.error('❌ Error clearing bets:', err.message);
+    alert(err.message || 'Failed to clear bets');
+  }
+}
+
 /** Settle a bet by updating its outcome and recalculating */
 export async function settleBet(betId, newOutcome) {
   const bet = bets.find(b => b._id === betId);
