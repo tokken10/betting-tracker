@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Bet = require('../models/Bet');
-const authorize = require('../middleware/authorize');
 const { updateUserStats } = require('../utils/userStats');
 
 // Get all bets for the authenticated user
@@ -20,13 +19,6 @@ router.post('/', async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
-
-// Delete all bets for the authenticated user (admin only)
-router.delete('/', authorize('admin'), async (req, res) => {
-  await Bet.deleteMany({ user: req.user.id });
-  await updateUserStats(req.user.id);
-  res.json({ message: 'All bets deleted' });
 });
 
 // Update a bet for the authenticated user
