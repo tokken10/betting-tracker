@@ -267,6 +267,13 @@ body {
   background: #c0392b;
 }
 
+.danger-link {
+  color: #e74c3c;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 10px;
+}
+
 .table-container {
   overflow-x: auto;
   max-height: 500px;
