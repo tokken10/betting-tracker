@@ -23,17 +23,24 @@ router.post('/', async (req, res) => {
 
 // Update a bet for the authenticated user
 router.put('/:id', async (req, res) => {
-  try {
-    const updatedBet = await Bet.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id },
-      req.body,
-      { new: true }
-    );
-    await updateUserStats(req.user.id);
-    res.json(updatedBet);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+    try {
+      const updatedBet = await Bet.findOneAndUpdate(
+        { _id: req.params.id, user: req.user.id },
+        req.body,
+        { new: true }
+      );
+      await updateUserStats(req.user.id);
+      res.json(updatedBet);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
+
+// Delete all bets for the authenticated user
+router.delete('/', async (req, res) => {
+  await Bet.deleteMany({ user: req.user.id });
+  await updateUserStats(req.user.id);
+  res.json({ message: 'All bets deleted' });
 });
 
 // Delete a bet for the authenticated user
