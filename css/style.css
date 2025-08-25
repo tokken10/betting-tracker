@@ -3,8 +3,8 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: white;
-}
+  background-color: #fff;
+
 
 .container {
   max-width: 1200px;
