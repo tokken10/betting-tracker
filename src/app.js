@@ -24,7 +24,7 @@ const envAllowed = (process.env.ALLOWED_ORIGINS || '')
   .filter(Boolean);
 
 const allowedOrigins = new Set([
-  'https://betting-tracker-nine.vercel.app', // frontend domain
+  'https://betting-tracker-jmg0otsr1-tokken10s-projects.vercel.app', // frontend domain
   'http://localhost:5173',            // Vite dev (change/remove if not used)
   'http://localhost:3000',            // Next.js/other local dev
   ...envAllowed,
