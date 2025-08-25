@@ -34,7 +34,7 @@ async function loadSharedComponents() {
     if (!target) return;
 
     try {
-      const res = await fetch(path);
+      const res = await fetch(path, { credentials: 'include' });
       if (!res.ok) throw new Error(`${path} not found`);
       const html = await res.text();
       target.innerHTML = html;
@@ -58,7 +58,7 @@ async function loadSharedComponents() {
 
       // Profile-specific behavior
       if (key === 'header' && window.location.pathname.includes('profile.html')) {
-        const profileRes = await fetch('shared/profile-header.html');
+        const profileRes = await fetch('shared/profile-header.html', { credentials: 'include' });
         if (!profileRes.ok) throw new Error('shared/profile-header.html not found');
         const profileHTML = await profileRes.text();
 
