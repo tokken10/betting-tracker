@@ -13,4 +13,13 @@ router.get('/', authorize('admin'), async (req, res) => {
   }
 });
 
+router.get('/me', async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('username role');
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

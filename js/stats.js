@@ -3,11 +3,9 @@ import { API_BASE_URL } from './config.js';
 import { bets } from './bets.js';
 
 async function fetchUserStats() {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
   try {
     const res = await fetch(`${API_BASE_URL}/users/me`, {
-      headers: { Authorization: `Bearer ${token}` }
+      credentials: 'include'
     });
     if (!res.ok) throw new Error('Failed to fetch stats');
     return await res.json();
@@ -63,15 +61,14 @@ function calculateDemoStats() {
 
 export async function updateStats() {
   const isDemoMode = new URLSearchParams(window.location.search).get('demo');
-  const token = localStorage.getItem('token');
   const el = id => document.getElementById(id);
 
   let stats = null;
-  if (!token || isDemoMode) {
+  if (isDemoMode) {
     stats = calculateDemoStats();
   } else {
     const user = await fetchUserStats();
-    stats = user?.stats;
+    stats = user?.stats || calculateDemoStats();
   }
 
   if (stats) {

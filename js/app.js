@@ -3,6 +3,7 @@ import { initForm, handleAddBet, saveFormData } from './form.js';
 import { renderBets, handleRemoveBet, handleSettleBet, showTableLoading } from './render.js';
 import { updateStats } from './stats.js';
 import { showFullText, closeModal, showLearnMore } from './modal.js';
+import { API_BASE_URL } from './config.js';
 
 // Always make core functions globally available for buttons
 window.addBet = handleAddBet;
@@ -24,18 +25,25 @@ window.saveFormData = saveFormData;
 initForm();
 
 // Wait for shared HTML components before loading bets
-  window.addEventListener('shared:loaded', async () => {
-    const isDemoMode = new URLSearchParams(window.location.search).get('demo');
-    const token = localStorage.getItem('token');
+window.addEventListener('shared:loaded', async () => {
+  const isDemoMode = new URLSearchParams(window.location.search).get('demo');
 
-    showTableLoading();
+  showTableLoading();
 
-    if (isDemoMode || !token) {
-      loadDemoBets();
-    } else {
-      await fetchBets();
-    }
+  let loggedIn = false;
+  if (!isDemoMode) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/me`, { credentials: 'include' });
+      loggedIn = res.ok;
+    } catch {}
+  }
 
-    renderBets();
-    await updateStats();
-  });
+  if (isDemoMode || !loggedIn) {
+    loadDemoBets();
+  } else {
+    await fetchBets();
+  }
+
+  renderBets();
+  await updateStats();
+});

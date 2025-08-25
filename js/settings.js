@@ -1,7 +1,7 @@
 import { exportToCSV, clearBets } from './bets.js';
-import { decodeToken } from './utils.js';
+import { API_BASE_URL } from './config.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const exportBtn = document.getElementById('export-bets-btn');
   if (exportBtn) {
     exportBtn.addEventListener('click', exportToCSV);
@@ -19,16 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const usernameDisplay = document.getElementById('username-display');
-  const token = localStorage.getItem('token');
-  if (usernameDisplay && token) {
-    const user = decodeToken(token);
-    if (user?.username) {
-      usernameDisplay.textContent = `Logged in as ${user.username}`;
-      usernameDisplay.style.display = 'block';
+  try {
+    const res = await fetch(`${API_BASE_URL}/users/me`, { credentials: 'include' });
+    if (res.ok) {
+      const user = await res.json();
+      if (usernameDisplay && user?.username) {
+        usernameDisplay.textContent = `Logged in as ${user.username}`;
+        usernameDisplay.style.display = 'block';
+      }
+      if (clearLink) {
+        clearLink.style.display = 'block';
+      }
     }
-  }
-
-  if (clearLink && token) {
-    clearLink.style.display = 'block';
-  }
+  } catch {}
 });

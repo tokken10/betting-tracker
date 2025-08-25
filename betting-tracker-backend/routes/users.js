@@ -19,7 +19,7 @@ router.get('/', authorize('admin'), async (req, res) => {
 router.get('/me', async (req, res) => {
   try {
     await updateUserStats(req.user.id);
-    const user = await User.findById(req.user.id).select('username stats');
+    const user = await User.findById(req.user.id).select('username stats role');
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
