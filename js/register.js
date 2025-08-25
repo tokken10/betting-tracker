@@ -27,13 +27,13 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ username, password })
     });
 
     if (!res.ok) throw new Error('Registration failed');
 
-    const data = await res.json();
-    localStorage.setItem('token', data.token);
+    await res.json();
     window.location.href = 'index.html';
   } catch (err) {
     console.error('❌ Registration error:', err.message);
