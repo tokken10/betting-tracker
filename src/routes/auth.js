@@ -37,7 +37,7 @@ router.post('/register', async (req, res) => {
     );
     
     res.cookie('token', token, cookieOptions);
-    res.status(201).json({ message: 'Registration successful' });
+    res.status(201).json({ message: 'Registration successful', token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
     );
     
     res.cookie('token', token, cookieOptions);
-    res.json({ message: 'Login successful' });
+    res.json({ message: 'Login successful', token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
