@@ -1,9 +1,11 @@
 // Auth state handling with HTTP-only cookies
+const API_BASE_URL = 'https://betting-tracker-backend.vercel.app';
+
 async function checkAuth() {
   try {
-    const response = await fetch('/api/auth/check', {
+    const response = await fetch(`${API_BASE_URL}/api/auth/check`, {
       method: 'GET',
-      credentials: 'include', // Important for sending cookies
+      credentials: 'include',
     });
     return response.ok ? await response.json() : null;
   } catch (error) {
@@ -14,7 +16,7 @@ async function checkAuth() {
 
 async function logout() {
   try {
-    await fetch('/api/auth/logout', {
+    await fetch(`${API_BASE_URL}/api/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     });
