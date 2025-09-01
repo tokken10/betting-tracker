@@ -53,6 +53,12 @@ router.post('/register', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(201).json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -75,10 +81,39 @@ router.post('/login', loginRateLimiter, async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.get('/check', (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ isAuthenticated: false });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { id, username, role } = decoded;
+    res.json({ isAuthenticated: true, user: { id, username, role } });
+  } catch (err) {
+    res.status(401).json({ isAuthenticated: false });
+  }
+});
+
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
+  });
+  res.json({ message: 'Logged out successfully' });
 });
 
 module.exports = router;
