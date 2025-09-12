@@ -56,6 +56,26 @@ export async function addBet(bet) {
   }
 }
 
+/** Update an existing bet */
+export async function updateBet(betId, updates) {
+  try {
+    const res = await fetch(`${API_URL}/${betId}`, {
+      method: 'PUT',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(updates),
+    });
+    if (!res.ok) throw new Error('Failed to update bet');
+    const updatedBet = await res.json();
+    const index = bets.findIndex(b => b._id === betId);
+    if (index !== -1) {
+      bets[index] = updatedBet;
+    }
+  } catch (err) {
+    console.error('❌ Error updating bet:', err.message);
+    alert(err.message || 'Failed to update bet');
+  }
+}
+
 /** Remove a bet by _id */
 export async function removeBet(betId) {
   try {

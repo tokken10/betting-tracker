@@ -1,4 +1,4 @@
-import { formatDate, escapeHtml } from './utils.js';
+import { formatDate, escapeHtml, decodeToken } from './utils.js';
 
 let activeModal = null;
 let previousFocus = null;
@@ -71,6 +71,8 @@ export function showBetDetails(bet) {
   const modal = document.getElementById('betDetailsModal');
   const body = document.getElementById('betDetailsBody');
   if (modal && body) {
+    const token = localStorage.getItem('token');
+    const user = token ? decodeToken(token) : null;
     const details = [
       { label: 'Outcome', value: escapeHtml(bet.outcome), class: `status ${bet.outcome.toLowerCase()}` },
       { label: 'Description', value: escapeHtml(bet.description || ''), class: '' },
@@ -92,7 +94,7 @@ export function showBetDetails(bet) {
     body.innerHTML = '';
     const actions = document.createElement('div');
     actions.className = 'modal-actions';
-    actions.innerHTML =
+    let actionsHTML =
       bet.outcome === 'Pending'
         ? `
           <select onchange="settleBet(this, '${bet._id}'); closeModal();">
@@ -104,6 +106,10 @@ export function showBetDetails(bet) {
           <button class="btn btn-danger" onclick="removeBet('${bet._id}'); closeModal();">Remove</button>
         `
         : `<button class="btn btn-danger" onclick="removeBet('${bet._id}'); closeModal();">Remove</button>`;
+    if (user?.role === 'admin') {
+      actionsHTML += `<button class="btn" onclick="startEditBet('${bet._id}'); closeModal();">Edit</button>`;
+    }
+    actions.innerHTML = actionsHTML;
     body.appendChild(actions);
 
     details.forEach(detail => {
