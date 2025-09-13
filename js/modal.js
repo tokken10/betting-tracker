@@ -3,6 +3,7 @@ import { updateBet as updateBetData, calculatePayout, bets } from './bets.js';
 import { renderBets } from './render.js';
 import { updateStats } from './stats.js';
 
+
 let activeModal = null;
 let previousFocus = null;
 
@@ -79,6 +80,7 @@ export function showBetDetails(bet) {
   const user = token ? decodeToken(token) : null;
   let currentBet = bet;
 
+
   function renderView() {
     body.innerHTML = '';
 
@@ -86,6 +88,7 @@ export function showBetDetails(bet) {
     actions.className = 'modal-actions';
     let actionsHTML =
       currentBet.outcome === 'Pending'
+
         ? `
           <select onchange="settleBet(this, '${currentBet._id}'); closeModal();">
             <option value="">Settle</option>
@@ -95,6 +98,7 @@ export function showBetDetails(bet) {
           </select>
           <button class="btn btn-danger" onclick="removeBet('${currentBet._id}'); closeModal();">Remove</button>
         `
+
         : `<button class="btn btn-danger" onclick="removeBet('${currentBet._id}'); closeModal();">Remove</button>`;
     if (user?.role === 'admin') {
       actionsHTML += `<button class="btn" id="editBetBtn">Edit</button>`;
