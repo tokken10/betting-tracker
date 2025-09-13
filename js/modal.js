@@ -1,4 +1,8 @@
 import { formatDate, escapeHtml, decodeToken } from './utils.js';
+import { updateBet as updateBetData, calculatePayout, bets } from './bets.js';
+import { renderBets } from './render.js';
+import { updateStats } from './stats.js';
+
 
 let activeModal = null;
 let previousFocus = null;
@@ -70,47 +74,74 @@ export function showFullText(text) {
 export function showBetDetails(bet) {
   const modal = document.getElementById('betDetailsModal');
   const body = document.getElementById('betDetailsBody');
-  if (modal && body) {
-    const token = localStorage.getItem('token');
-    const user = token ? decodeToken(token) : null;
-    const details = [
-      { label: 'Outcome', value: escapeHtml(bet.outcome), class: `status ${bet.outcome.toLowerCase()}` },
-      { label: 'Description', value: escapeHtml(bet.description || ''), class: '' },
-      { label: 'Bet Type', value: escapeHtml(bet.betType), class: '' },
-      { label: 'Odds', value: escapeHtml(bet.odds), class: parseFloat(bet.odds) > 0 ? 'positive' : parseFloat(bet.odds) < 0 ? 'negative' : '' },
-      { label: 'Stake', value: `$${parseFloat(bet.stake).toFixed(2)}`, class: '' },
-      { label: 'Payout', value: `$${parseFloat(bet.payout).toFixed(2)}`, class: bet.payout > 0 ? 'positive' : '' },
-      {
-        label: 'Profit/Loss',
-        value: bet.outcome === 'Pending' ? '—' : (bet.profitLoss > 0 ? '+' : '') + '$' + parseFloat(bet.profitLoss).toFixed(2),
-        class: bet.outcome === 'Pending' ? '' : bet.profitLoss > 0 ? 'positive' : bet.profitLoss < 0 ? 'negative' : ''
-      },
-      { label: 'Date', value: formatDate(bet.date), class: '' },
-      { label: 'Event', value: escapeHtml(bet.event), class: '' },
-      { label: 'Sport', value: escapeHtml(bet.sport), class: '' },
-      { label: 'Note', value: escapeHtml(bet.note || ''), class: '', fullWidth: true }
-    ];
+  if (!modal || !body) return;
 
+  const token = localStorage.getItem('token');
+  const user = token ? decodeToken(token) : null;
+  let currentBet = bet;
+
+
+  function renderView() {
     body.innerHTML = '';
+
     const actions = document.createElement('div');
     actions.className = 'modal-actions';
     let actionsHTML =
-      bet.outcome === 'Pending'
+      currentBet.outcome === 'Pending'
+
         ? `
-          <select onchange="settleBet(this, '${bet._id}'); closeModal();">
+          <select onchange="settleBet(this, '${currentBet._id}'); closeModal();">
             <option value="">Settle</option>
             <option value="Win">Win</option>
             <option value="Loss">Loss</option>
             <option value="Push">Push</option>
           </select>
-          <button class="btn btn-danger" onclick="removeBet('${bet._id}'); closeModal();">Remove</button>
+          <button class="btn btn-danger" onclick="removeBet('${currentBet._id}'); closeModal();">Remove</button>
         `
-        : `<button class="btn btn-danger" onclick="removeBet('${bet._id}'); closeModal();">Remove</button>`;
+
+        : `<button class="btn btn-danger" onclick="removeBet('${currentBet._id}'); closeModal();">Remove</button>`;
     if (user?.role === 'admin') {
-      actionsHTML += `<button class="btn" onclick="startEditBet('${bet._id}'); closeModal();">Edit</button>`;
+      actionsHTML += `<button class="btn" id="editBetBtn">Edit</button>`;
     }
     actions.innerHTML = actionsHTML;
     body.appendChild(actions);
+
+    const details = [
+      { label: 'Outcome', value: escapeHtml(currentBet.outcome), class: `status ${currentBet.outcome.toLowerCase()}` },
+      { label: 'Description', value: escapeHtml(currentBet.description || ''), class: '' },
+      { label: 'Bet Type', value: escapeHtml(currentBet.betType), class: '' },
+      {
+        label: 'Odds',
+        value: escapeHtml(currentBet.odds),
+        class:
+          parseFloat(currentBet.odds) > 0
+            ? 'positive'
+            : parseFloat(currentBet.odds) < 0
+            ? 'negative'
+            : ''
+      },
+      { label: 'Stake', value: `$${parseFloat(currentBet.stake).toFixed(2)}`, class: '' },
+      { label: 'Payout', value: `$${parseFloat(currentBet.payout).toFixed(2)}`, class: currentBet.payout > 0 ? 'positive' : '' },
+      {
+        label: 'Profit/Loss',
+        value:
+          currentBet.outcome === 'Pending'
+            ? '—'
+            : (currentBet.profitLoss > 0 ? '+' : '') + '$' + parseFloat(currentBet.profitLoss).toFixed(2),
+        class:
+          currentBet.outcome === 'Pending'
+            ? ''
+            : currentBet.profitLoss > 0
+            ? 'positive'
+            : currentBet.profitLoss < 0
+            ? 'negative'
+            : ''
+      },
+      { label: 'Date', value: formatDate(currentBet.date), class: '' },
+      { label: 'Event', value: escapeHtml(currentBet.event), class: '' },
+      { label: 'Sport', value: escapeHtml(currentBet.sport), class: '' },
+      { label: 'Note', value: escapeHtml(currentBet.note || ''), class: '', fullWidth: true }
+    ];
 
     details.forEach(detail => {
       const card = document.createElement('div');
@@ -123,8 +154,81 @@ export function showBetDetails(bet) {
       body.appendChild(card);
     });
 
-    openModal(modal);
+    if (user?.role === 'admin') {
+      const editBtn = document.getElementById('editBetBtn');
+      editBtn?.addEventListener('click', renderEdit);
+    }
   }
+
+  function renderEdit() {
+    body.innerHTML = '';
+
+    const form = document.createElement('div');
+    form.innerHTML = `
+      <label>Date<input type="date" id="edit-date" value="${new Date(currentBet.date).toISOString().split('T')[0]}"></label>
+      <label>Sport<input type="text" id="edit-sport" value="${escapeHtml(currentBet.sport)}"></label>
+      <label>Event<input type="text" id="edit-event" value="${escapeHtml(currentBet.event)}"></label>
+      <label>Bet Type<input type="text" id="edit-betType" value="${escapeHtml(currentBet.betType)}"></label>
+      <label>Odds<input type="text" id="edit-odds" value="${escapeHtml(currentBet.odds)}"></label>
+      <label>Stake<input type="number" step="0.01" id="edit-stake" value="${currentBet.stake}"></label>
+      <label>Outcome
+        <select id="edit-outcome">
+          <option value="Pending" ${currentBet.outcome === 'Pending' ? 'selected' : ''}>Pending</option>
+          <option value="Win" ${currentBet.outcome === 'Win' ? 'selected' : ''}>Win</option>
+          <option value="Loss" ${currentBet.outcome === 'Loss' ? 'selected' : ''}>Loss</option>
+          <option value="Push" ${currentBet.outcome === 'Push' ? 'selected' : ''}>Push</option>
+        </select>
+      </label>
+      <label>Description<input type="text" id="edit-description" value="${escapeHtml(currentBet.description || '')}"></label>
+      <label>Note<textarea id="edit-note">${escapeHtml(currentBet.note || '')}</textarea></label>
+    `;
+    body.appendChild(form);
+
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    actions.innerHTML = `<button class="btn" id="saveEditBtn">Save</button><button class="btn btn-secondary" id="cancelEditBtn">Cancel</button>`;
+    body.appendChild(actions);
+
+    document.getElementById('cancelEditBtn').addEventListener('click', renderView);
+    document.getElementById('saveEditBtn').addEventListener('click', async () => {
+      const updates = {
+        date: document.getElementById('edit-date').value,
+        sport: document.getElementById('edit-sport').value.trim(),
+        event: document.getElementById('edit-event').value.trim(),
+        betType: document.getElementById('edit-betType').value.trim(),
+        odds: document.getElementById('edit-odds').value.trim(),
+        stake: parseFloat(document.getElementById('edit-stake').value) || 0,
+        outcome: document.getElementById('edit-outcome').value,
+        description: document.getElementById('edit-description').value.trim(),
+        note: document.getElementById('edit-note').value.trim()
+      };
+
+      let payout = 0;
+      let profitLoss = 0;
+      if (updates.outcome === 'Win') {
+        payout = calculatePayout(updates.odds, updates.stake);
+        profitLoss = payout - updates.stake;
+      } else if (updates.outcome === 'Loss') {
+        payout = 0;
+        profitLoss = -updates.stake;
+      } else if (updates.outcome === 'Push') {
+        payout = updates.stake;
+        profitLoss = 0;
+      }
+      updates.payout = payout;
+      updates.profitLoss = profitLoss;
+
+      await updateBetData(currentBet._id, updates);
+      renderBets();
+      await updateStats();
+      const updated = bets.find(b => b._id === currentBet._id);
+      if (updated) currentBet = updated;
+      renderView();
+    });
+  }
+
+  renderView();
+  openModal(modal);
 }
 
 export function showLearnMore() {
