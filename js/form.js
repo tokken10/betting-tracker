@@ -1,8 +1,10 @@
-import { addBet as addBetData, calculatePayout } from './bets.js';
+import { addBet as addBetData, calculatePayout, updateBet as updateBetData, bets } from './bets.js';
 import { renderBets } from './render.js';
 import { updateStats } from './stats.js';
 
 const FORM_FIELDS = ['date', 'sport', 'event', 'betType', 'odds', 'stake', 'outcome', 'description', 'note'];
+
+let editingBetId = null;
 
 export function initForm() {
   const outcomeEl = document.getElementById('outcome');
@@ -104,7 +106,6 @@ export async function handleAddBet() {
   }
 
   const bet = {
-    id: Date.now(),
     date,
     sport,
     event,
@@ -119,7 +120,12 @@ export async function handleAddBet() {
   };
 
   try {
-    await addBetData(bet);
+    if (editingBetId) {
+      await updateBetData(editingBetId, bet);
+    } else {
+      bet.id = Date.now();
+      await addBetData(bet);
+    }
     renderBets();
     await updateStats();
     clearForm();
@@ -134,4 +140,30 @@ export function clearForm() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+
+  editingBetId = null;
+  const addBtn = document.getElementById('add-bet-btn');
+  if (addBtn) addBtn.textContent = 'Add Bet';
+}
+
+export function startEditBet(betId) {
+  const bet = bets.find(b => b._id === betId);
+  if (!bet) return;
+  editingBetId = betId;
+  const dateEl = document.getElementById('date');
+  if (dateEl) {
+    const d = new Date(bet.date);
+    dateEl.value = d.toISOString().split('T')[0];
+  }
+  const fields = ['sport', 'event', 'betType', 'odds', 'stake', 'outcome', 'description', 'note'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = bet[id] ?? '';
+  });
+  const payoutEl = document.getElementById('payout');
+  if (payoutEl) {
+    payoutEl.value = bet.payout?.toFixed(2) ?? '';
+  }
+  const addBtn = document.getElementById('add-bet-btn');
+  if (addBtn) addBtn.textContent = 'Update Bet';
 }
