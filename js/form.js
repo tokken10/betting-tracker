@@ -2,7 +2,7 @@ import { addBet as addBetData, calculatePayout, updateBet as updateBetData, bets
 import { renderBets } from './render.js';
 import { updateStats } from './stats.js';
 
-const FORM_FIELDS = ['date', 'sport', 'event', 'betType', 'odds', 'stake', 'outcome', 'description', 'note'];
+const FORM_FIELDS = ['date', 'sport', 'event', 'betType', 'odds', 'stake', 'outcome', 'description', 'note', 'closingOdds', 'sportsbook'];
 
 let editingBetId = null;
 
@@ -85,6 +85,19 @@ export async function handleAddBet() {
   const outcome = document.getElementById('outcome').value;
   const description = document.getElementById('description').value.trim();
   const note = document.getElementById('note').value.trim();
+  const closingOddsInput = document.getElementById('closingOdds').value.trim();
+  let closingOdds = closingOddsInput;
+  const closingNum = parseFloat(closingOddsInput);
+  if (
+    closingOddsInput &&
+    !closingOddsInput.startsWith('+') &&
+    !closingOddsInput.startsWith('-') &&
+    !isNaN(closingNum) &&
+    Math.abs(closingNum) >= 100
+  ) {
+    closingOdds = `${closingNum > 0 ? '+' : ''}${closingOddsInput}`;
+  }
+  const sportsbook = document.getElementById('sportsbook').value.trim();
 
   if (!date || !sport || !event || !betType || !odds || !stake || !outcome) {
     alert('Please fill in all required fields');
@@ -116,7 +129,9 @@ export async function handleAddBet() {
     payout,
     profitLoss,
     description,
-    note
+    note,
+    closingOdds,
+    sportsbook,
   };
 
   try {
@@ -135,7 +150,7 @@ export async function handleAddBet() {
 }
 
 export function clearForm() {
-  const fields = ['event', 'odds', 'stake', 'payout', 'outcome', 'description', 'note'];
+  const fields = ['event', 'odds', 'stake', 'payout', 'outcome', 'description', 'note', 'closingOdds', 'sportsbook'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -155,7 +170,7 @@ export function startEditBet(betId) {
     const d = new Date(bet.date);
     dateEl.value = d.toISOString().split('T')[0];
   }
-  const fields = ['sport', 'event', 'betType', 'odds', 'stake', 'outcome', 'description', 'note'];
+  const fields = ['sport', 'event', 'betType', 'odds', 'stake', 'outcome', 'description', 'note', 'closingOdds', 'sportsbook'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = bet[id] ?? '';

@@ -2,6 +2,25 @@
 import { API_BASE_URL } from './config.js';
 import { bets } from './bets.js';
 
+function impliedProbFromOdds(odds) {
+  if (!odds) return null;
+  const str = String(odds).trim();
+  if (!str) return null;
+  const value = Number(str);
+  if (!Number.isFinite(value)) return null;
+  const isDecimal = str.includes('.') && Math.abs(value) < 100;
+  if (!isDecimal && (str.startsWith('+') || str.startsWith('-') || Math.abs(value) >= 100)) {
+    if (value > 0) {
+      return 100 / (value + 100);
+    }
+    if (value < 0) {
+      return Math.abs(value) / (Math.abs(value) + 100);
+    }
+    return null;
+  }
+  return value > 0 ? 1 / value : null;
+}
+
 async function fetchUserStats() {
   const token = localStorage.getItem('token');
   if (!token) return null;
@@ -47,6 +66,21 @@ function calculateDemoStats() {
     }
   }
   const winStreak = maxStreak;
+  const pendingExposure = bets
+    .filter(b => b.outcome === 'Pending')
+    .reduce((sum, b) => sum + (b.stake || 0), 0);
+
+  const clvEntries = bets
+    .map(b => {
+      const open = impliedProbFromOdds(b.odds);
+      const close = impliedProbFromOdds(b.closingOdds);
+      if (open === null || close === null) return null;
+      return (close - open) * 100;
+    })
+    .filter(value => value !== null);
+  const clv = clvEntries.length
+    ? clvEntries.reduce((sum, value) => sum + value, 0) / clvEntries.length
+    : null;
 
   return {
     totalBets: bets.length,
@@ -58,6 +92,8 @@ function calculateDemoStats() {
     mostProfitable,
     avgStake,
     winStreak,
+    clv,
+    pendingExposure,
   };
 }
 
@@ -85,6 +121,7 @@ export async function updateStats() {
       mostProfitable,
       avgStake,
       winStreak,
+      clv,
     } = stats;
     if (el('totalBets')) el('totalBets').textContent = totalBets;
     if (el('winRate')) el('winRate').textContent = winRate.toFixed(1) + '%';
@@ -101,5 +138,14 @@ export async function updateStats() {
     if (el('bestSport')) el('bestSport').textContent = mostProfitable || '-';
     if (el('avgStake')) el('avgStake').textContent = '$' + avgStake.toFixed(2);
     if (el('winStreak')) el('winStreak').textContent = winStreak;
+    if (el('clv')) {
+      if (clv === null || Number.isNaN(clv)) {
+        el('clv').textContent = '—';
+        el('clv').className = 'stat-value';
+      } else {
+        el('clv').textContent = (clv >= 0 ? '+' : '') + clv.toFixed(1) + '%';
+        el('clv').className = 'stat-value ' + (clv >= 0 ? 'positive' : 'negative');
+      }
+    }
   }
 }
