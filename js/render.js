@@ -86,6 +86,8 @@ export function renderBets() {
     const safeBetType = escapeHtml(bet.betType);
     const safeOdds = escapeHtml(bet.odds);
     const safeSport = escapeHtml(bet.sport);
+    const safeClosingOdds = escapeHtml(bet.closingOdds || '');
+    const safeSportsbook = escapeHtml(bet.sportsbook || '');
     const safeNote = escapeHtml(bet.note || '');
 
     row.innerHTML = `
@@ -102,6 +104,7 @@ export function renderBets() {
       </td>
       <td>${safeBetType}</td>
       <td>${safeOdds}</td>
+      <td>${safeClosingOdds || '—'}</td>
       <td>$${parseFloat(bet.stake).toFixed(2)}</td>
       <td>$${parseFloat(bet.payout).toFixed(2)}</td>
       <td class="${profitClass}">
@@ -109,6 +112,7 @@ export function renderBets() {
       </td>
       <td>${formatDate(bet.date)}</td>
       <td>${safeSport}</td>
+      <td>${safeSportsbook || '—'}</td>
       <td class="note-cell">
         <div class="note-content" title="${safeNote}" onclick="showFullText(${JSON.stringify(bet.note || '')})">
           ${safeNote}

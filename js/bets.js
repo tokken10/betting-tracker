@@ -142,7 +142,7 @@ export async function settleBet(betId, newOutcome) {
 
 /** Export all bets to CSV */
 export function exportToCSV() {
-  const headers = ['Outcome', 'Event', 'Description', 'Bet Type', 'Odds', 'Stake', 'Payout', 'Profit/Loss', 'Date', 'Sport', 'Note'];
+  const headers = ['Outcome', 'Event', 'Description', 'Bet Type', 'Odds', 'Closing Odds', 'Stake', 'Payout', 'Profit/Loss', 'Date', 'Sport', 'Sportsbook', 'Note'];
 
   const csvContent = [
     headers.join(','),
@@ -152,11 +152,13 @@ export function exportToCSV() {
       `"${bet.description || ''}"`,
       bet.betType,
       bet.odds,
+      bet.closingOdds || '',
       parseFloat(bet.stake).toFixed(2),
       parseFloat(bet.payout).toFixed(2),
       bet.outcome === 'Pending' ? '' : parseFloat(bet.profitLoss).toFixed(2),
       formatDate(bet.date),
       bet.sport,
+      `"${(bet.sportsbook || '').replace(/"/g, '""')}"`,
       `"${bet.note || ''}"`
     ].join(','))
   ].join('\n');
@@ -180,11 +182,13 @@ export function loadDemoData() {
       description: 'Eagles -3.5',
       betType: 'Point Spread',
       odds: '-110',
+      closingOdds: '-118',
       stake: 110,
       payout: calculatePayout('-110', 110),
       profitLoss: calculatePayout('-110', 110) - 110,
       date: '2024-01-15T00:00:00.000Z',
       sport: 'NFL Football',
+      sportsbook: 'DraftKings',
       note: 'Sample win'
     },
     {
@@ -194,11 +198,13 @@ export function loadDemoData() {
       description: 'Lakers -2',
       betType: 'Point Spread',
       odds: '-105',
+      closingOdds: '-102',
       stake: 105,
       payout: 0,
       profitLoss: -105,
       date: '2024-02-20T00:00:00.000Z',
       sport: 'NBA Basketball',
+      sportsbook: 'FanDuel',
       note: 'Sample loss'
     },
     {
@@ -208,11 +214,13 @@ export function loadDemoData() {
       description: 'Over 8.5',
       betType: 'Over/Under',
       odds: '-110',
+      closingOdds: '-108',
       stake: 110,
       payout: 0,
       profitLoss: 0,
       date: '2024-03-10T00:00:00.000Z',
       sport: 'Baseball',
+      sportsbook: 'BetMGM',
       note: ''
     },
     {
@@ -222,11 +230,13 @@ export function loadDemoData() {
       description: 'Packers ML',
       betType: 'Moneyline',
       odds: '+120',
+      closingOdds: '+110',
       stake: 100,
       payout: calculatePayout('+120', 100),
       profitLoss: calculatePayout('+120', 100) - 100,
       date: '2024-04-12T00:00:00.000Z',
       sport: 'NFL Football',
+      sportsbook: 'DraftKings',
       note: 'Dog hits'
     },
     {
@@ -236,11 +246,13 @@ export function loadDemoData() {
       description: 'Over 210.5',
       betType: 'Over/Under',
       odds: '-110',
+      closingOdds: '-105',
       stake: 110,
       payout: 0,
       profitLoss: -110,
       date: '2024-05-01T00:00:00.000Z',
       sport: 'NBA Basketball',
+      sportsbook: 'FanDuel',
       note: 'High scoring attempt'
     },
     {
@@ -250,11 +262,13 @@ export function loadDemoData() {
       description: 'Under 43.5',
       betType: 'Over/Under',
       odds: '-105',
+      closingOdds: '-103',
       stake: 105,
       payout: 0,
       profitLoss: 0,
       date: '2024-06-15T00:00:00.000Z',
       sport: 'NFL Football',
+      sportsbook: 'Caesars',
       note: ''
     },
     {
@@ -264,11 +278,13 @@ export function loadDemoData() {
       description: 'Hurricanes +1.5',
       betType: 'Puck Line',
       odds: '-130',
+      closingOdds: '-135',
       stake: 130,
       payout: calculatePayout('-130', 130),
       profitLoss: calculatePayout('-130', 130) - 130,
       date: '2024-07-20T00:00:00.000Z',
       sport: 'NHL Hockey',
+      sportsbook: 'BetMGM',
       note: 'Sample hockey win'
     },
     {
@@ -278,11 +294,13 @@ export function loadDemoData() {
       description: 'Spain +1',
       betType: 'Point Spread',
       odds: '-110',
+      closingOdds: '-110',
       stake: 110,
       payout: 110,
       profitLoss: 0,
       date: '2024-08-05T00:00:00.000Z',
       sport: 'Soccer',
+      sportsbook: 'PointsBet',
       note: 'Push sample'
     }
   ];

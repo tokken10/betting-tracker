@@ -121,6 +121,11 @@ export function showBetDetails(bet) {
             : ''
       },
       { label: 'Stake', value: `$${parseFloat(currentBet.stake).toFixed(2)}`, class: '' },
+      {
+        label: 'Closing Odds',
+        value: escapeHtml(currentBet.closingOdds || '—'),
+        class: '',
+      },
       { label: 'Payout', value: `$${parseFloat(currentBet.payout).toFixed(2)}`, class: currentBet.payout > 0 ? 'positive' : '' },
       {
         label: 'Profit/Loss',
@@ -140,6 +145,7 @@ export function showBetDetails(bet) {
       { label: 'Date', value: formatDate(currentBet.date), class: '' },
       { label: 'Event', value: escapeHtml(currentBet.event), class: '' },
       { label: 'Sport', value: escapeHtml(currentBet.sport), class: '' },
+      { label: 'Sportsbook', value: escapeHtml(currentBet.sportsbook || '—'), class: '' },
       { label: 'Note', value: escapeHtml(currentBet.note || ''), class: '', fullWidth: true }
     ];
 
@@ -179,6 +185,8 @@ export function showBetDetails(bet) {
           <option value="Push" ${currentBet.outcome === 'Push' ? 'selected' : ''}>Push</option>
         </select>
       </label>
+      <label>Closing Odds<input type="text" id="edit-closingOdds" value="${escapeHtml(currentBet.closingOdds || '')}"></label>
+      <label>Sportsbook<input type="text" id="edit-sportsbook" value="${escapeHtml(currentBet.sportsbook || '')}"></label>
       <label>Description<input type="text" id="edit-description" value="${escapeHtml(currentBet.description || '')}"></label>
       <label>Note<textarea id="edit-note">${escapeHtml(currentBet.note || '')}</textarea></label>
     `;
@@ -200,7 +208,9 @@ export function showBetDetails(bet) {
         stake: parseFloat(document.getElementById('edit-stake').value) || 0,
         outcome: document.getElementById('edit-outcome').value,
         description: document.getElementById('edit-description').value.trim(),
-        note: document.getElementById('edit-note').value.trim()
+        note: document.getElementById('edit-note').value.trim(),
+        closingOdds: document.getElementById('edit-closingOdds').value.trim(),
+        sportsbook: document.getElementById('edit-sportsbook').value.trim(),
       };
 
       let payout = 0;
