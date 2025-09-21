@@ -58,7 +58,7 @@ function updateAiKeyUI({ hasKey, setAt }) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const exportBtn = document.getElementById('export-bets-btn');
   if (exportBtn) {
     exportBtn.addEventListener('click', exportToCSV);
