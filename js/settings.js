@@ -86,6 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (clearLink && user) clearLink.style.display = 'block';
 
+  // Toggle auth buttons in Settings explicitly (in case global UI didn't yet)
+  const loginBtn = document.getElementById('login-btn');
+  const signupBtn = document.getElementById('signup-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+  if (user) {
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (signupBtn) signupBtn.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'inline-block';
+  } else {
+    if (loginBtn) loginBtn.style.display = 'inline-block';
+    if (signupBtn) signupBtn.style.display = 'inline-block';
+    if (logoutBtn) logoutBtn.style.display = 'none';
+  }
+
   const aiForm = document.getElementById('openai-key-form');
   const input = document.getElementById('openai-key');
   const removeBtn = document.getElementById('remove-openai-key');

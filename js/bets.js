@@ -8,12 +8,20 @@ const API_URL = `${API_BASE_URL}/bets`;
 export async function fetchBets() {
   try {
     const res = await fetch(API_URL, { credentials: 'include' });
+    if (res.status === 401) {
+      // Not authenticated: keep empty silently; UI will prompt to sign in
+      bets = [];
+      return;
+    }
     if (!res.ok) throw new Error('Failed to fetch bets');
     bets = await res.json();
   } catch (err) {
     console.error('❌ Error fetching bets:', err.message);
     bets = [];
-    alert(err.message || 'Failed to fetch bets');
+    // Avoid noisy alerts on navigation; surface only unexpected errors
+    if (!/Failed to fetch bets/.test(err.message)) {
+      alert(err.message || 'Failed to fetch bets');
+    }
   }
 }
 

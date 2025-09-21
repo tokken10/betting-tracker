@@ -30,7 +30,8 @@ initForm();
 
     showTableLoading();
 
-    if (isDemoMode) {
+    const me = window.CURRENT_USER || null;
+    if (isDemoMode || !me) {
       loadDemoBets();
     } else {
       await fetchBets();

@@ -11,7 +11,7 @@ async function getCurrentUser() {
 }
 
 // Simple auth state handling for UI
-async function updateAuthUI() {
+export async function updateAuthUI() {
   const loginBtn = document.getElementById('login-btn');
   const signupBtn = document.getElementById('signup-btn');
   const logoutBtn = document.getElementById('logout-btn');
@@ -54,3 +54,4 @@ async function updateAuthUI() {
 }
 
 document.addEventListener('DOMContentLoaded', updateAuthUI);
+window.addEventListener('shared:loaded', updateAuthUI);
