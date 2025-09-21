@@ -1,12 +1,9 @@
 import { exportToCSV, clearBets } from './bets.js';
-import { decodeToken } from './utils.js';
 import { API_BASE_URL } from './config.js';
 
-async function fetchProfile(token) {
+async function fetchProfile() {
   try {
-    const res = await fetch(`${API_BASE_URL}/users/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await fetch(`${API_BASE_URL}/users/me`, { credentials: 'include' });
     if (!res.ok) throw new Error('Failed to load profile');
     return await res.json();
   } catch (err) {
@@ -15,13 +12,11 @@ async function fetchProfile(token) {
   }
 }
 
-async function saveOpenAiKey(token, apiKey) {
+async function saveOpenAiKey(apiKey) {
   const res = await fetch(`${API_BASE_URL}/users/me/openai-key`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ apiKey })
   });
   if (!res.ok) {
@@ -30,10 +25,10 @@ async function saveOpenAiKey(token, apiKey) {
   }
 }
 
-async function removeOpenAiKey(token) {
+async function removeOpenAiKey() {
   const res = await fetch(`${API_BASE_URL}/users/me/openai-key`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` }
+    credentials: 'include',
   });
   if (!res.ok) {
     const error = await res.json().catch(() => ({}));
@@ -81,25 +76,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const usernameDisplay = document.getElementById('username-display');
-  const token = localStorage.getItem('token');
-  if (usernameDisplay && token) {
-    const user = decodeToken(token);
-    if (user?.username) {
-      usernameDisplay.textContent = `Logged in as ${user.username}`;
-      usernameDisplay.style.display = 'block';
-    }
+  let user = null;
+  try {
+    user = await fetchProfile();
+  } catch {}
+  if (usernameDisplay && user?.username) {
+    usernameDisplay.textContent = `Logged in as ${user.username}`;
+    usernameDisplay.style.display = 'block';
   }
-
-  if (clearLink && token) {
-    clearLink.style.display = 'block';
-  }
+  if (clearLink && user) clearLink.style.display = 'block';
 
   const aiForm = document.getElementById('openai-key-form');
   const input = document.getElementById('openai-key');
   const removeBtn = document.getElementById('remove-openai-key');
 
   if (aiForm && input) {
-    if (!token) {
+    if (!user) {
       input.disabled = true;
       setAiKeyStatus('Log in to manage your AI analyst key.', 'info');
       aiForm.querySelector('button[type="submit"]').disabled = true;
@@ -107,9 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    fetchProfile(token).then(profile => {
-      updateAiKeyUI({ hasKey: Boolean(profile?.aiKeyConfigured), setAt: profile?.aiKeySetAt });
-    });
+    updateAiKeyUI({ hasKey: Boolean(user?.aiKeyConfigured), setAt: user?.aiKeySetAt });
 
     aiForm.addEventListener('submit', async e => {
       e.preventDefault();
@@ -120,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       try {
         setAiKeyStatus('Saving key...', 'info');
-        await saveOpenAiKey(token, apiKey);
+        await saveOpenAiKey(apiKey);
         updateAiKeyUI({ hasKey: true, setAt: new Date().toISOString() });
       } catch (err) {
         console.error('❌ Error saving OpenAI key:', err.message);
@@ -132,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
       removeBtn.addEventListener('click', async () => {
         try {
           setAiKeyStatus('Removing key...', 'info');
-          await removeOpenAiKey(token);
+          await removeOpenAiKey();
           updateAiKeyUI({ hasKey: false });
         } catch (err) {
           console.error('❌ Error removing OpenAI key:', err.message);

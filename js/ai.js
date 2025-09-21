@@ -26,13 +26,9 @@ let defaultHints = [
   'Where am I running cold?'
 ];
 
-function getToken() {
-  return localStorage.getItem('token');
-}
-
-function ensureLoggedIn() {
-  const token = getToken();
-  if (!token) {
+async function ensureLoggedIn() {
+  const me = window.CURRENT_USER || null;
+  if (!me) {
     appendSystemMessage('Sign in and save your OpenAI key in Settings to chat with the analyst.');
     if (questionInput) questionInput.disabled = true;
     if (sendBtn) sendBtn.disabled = true;
@@ -283,8 +279,8 @@ function renderContext(payload) {
 }
 
 async function loadContext({ scope = currentScope, filters = selectedFilters } = {}) {
-  const token = getToken();
-  if (!token) return;
+  const me = window.CURRENT_USER || null;
+  if (!me) return;
   const params = new URLSearchParams();
   if (scope === 'filtered') {
     Object.entries(filters || {}).forEach(([key, value]) => {
@@ -298,7 +294,7 @@ async function loadContext({ scope = currentScope, filters = selectedFilters } =
   }
   const url = `${API_BASE_URL}/ai/context${params.toString() ? `?${params}` : ''}`;
   try {
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(url, { credentials: 'include' });
     if (!res.ok) {
       throw new Error('Failed to load AI context');
     }
@@ -419,16 +415,14 @@ function handleSseEvent(event, data, streamState) {
 }
 
 async function streamAnalysis(message) {
-  const token = getToken();
-  if (!token) return;
+  const me = window.CURRENT_USER || null;
+  if (!me) return;
 
   const requestBody = buildRequestBody(message);
   const response = await fetch(`${API_BASE_URL}/ai/analyze`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(requestBody),
   });
 
@@ -530,7 +524,7 @@ function initInput() {
 }
 
 async function init() {
-  if (!ensureLoggedIn()) return;
+  if (!(await ensureLoggedIn())) return;
   await loadContext();
   initScopeControls();
   initInput();

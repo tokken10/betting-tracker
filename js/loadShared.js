@@ -1,8 +1,10 @@
-function getUser() {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
+import { API_BASE_URL } from './config.js';
+
+async function getUser() {
   try {
-    return JSON.parse(atob(token.split('.')[1]));
+    const res = await fetch(`${API_BASE_URL}/auth/me`, { credentials: 'include' });
+    if (!res.ok) return null;
+    return await res.json();
   } catch {
     return null;
   }
@@ -37,7 +39,8 @@ async function loadSharedComponents() {
       const html = await res.text();
       target.innerHTML = html;
 
-      const user = getUser();
+      const user = await getUser();
+      window.CURRENT_USER = user;
 
       if (key === 'header') {
         const adminLink = target.querySelector('a[href="admin.html"]');

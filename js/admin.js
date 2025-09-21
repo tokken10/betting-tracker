@@ -1,25 +1,15 @@
 import { API_BASE_URL } from './config.js';
-import { decodeToken, escapeHtml } from './utils.js';
+import { escapeHtml } from './utils.js';
 
 const API_URL = `${API_BASE_URL}/users`;
 
 async function loadUsers() {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = 'login.html';
-    return;
-  }
-
-  const user = decodeToken(token);
-  if (!user || user.role !== 'admin') {
-    window.location.href = 'index.html';
-    return;
-  }
+  const me = window.CURRENT_USER || null;
+  if (!me) return (window.location.href = 'login.html');
+  if (me.role !== 'admin') return (window.location.href = 'index.html');
 
   try {
-    const res = await fetch(API_URL, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await fetch(API_URL, { credentials: 'include' });
     if (!res.ok) throw new Error('Failed to fetch users');
     const users = await res.json();
     const list = document.getElementById('user-list');

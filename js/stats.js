@@ -22,17 +22,12 @@ function impliedProbFromOdds(odds) {
 }
 
 async function fetchUserStats() {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
   try {
-    const res = await fetch(`${API_BASE_URL}/users/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error('Failed to fetch stats');
+    const res = await fetch(`${API_BASE_URL}/users/me`, { credentials: 'include' });
+    if (!res.ok) return null;
     return await res.json();
   } catch (err) {
     console.error('❌ Error fetching user stats:', err.message);
-    alert(err.message || 'Failed to fetch user stats');
     return null;
   }
 }
@@ -99,15 +94,14 @@ function calculateDemoStats() {
 
 export async function updateStats() {
   const isDemoMode = new URLSearchParams(window.location.search).get('demo');
-  const token = localStorage.getItem('token');
   const el = id => document.getElementById(id);
 
   let stats = null;
-  if (!token || isDemoMode) {
+  if (isDemoMode) {
     stats = calculateDemoStats();
   } else {
     const user = await fetchUserStats();
-    stats = user?.stats;
+    stats = user?.stats || calculateDemoStats();
   }
 
   if (stats) {

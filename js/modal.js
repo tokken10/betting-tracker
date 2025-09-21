@@ -1,4 +1,4 @@
-import { formatDate, escapeHtml, decodeToken } from './utils.js';
+import { formatDate, escapeHtml } from './utils.js';
 import { updateBet as updateBetData, calculatePayout, bets } from './bets.js';
 import { renderBets } from './render.js';
 import { updateStats } from './stats.js';
@@ -76,8 +76,7 @@ export function showBetDetails(bet) {
   const body = document.getElementById('betDetailsBody');
   if (!modal || !body) return;
 
-  const token = localStorage.getItem('token');
-  const user = token ? decodeToken(token) : null;
+  const user = window.CURRENT_USER || null;
   let currentBet = bet;
 
 
@@ -247,4 +246,3 @@ export function showLearnMore() {
     openModal(modal);
   }
 }
-

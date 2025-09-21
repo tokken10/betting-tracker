@@ -14,6 +14,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ username, password })
     });
     if (res.status === 429) {
@@ -22,8 +23,8 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     }
     if (!res.ok) throw new Error('Login failed');
 
-    const data = await res.json();
-    localStorage.setItem('token', data.token);
+    // Cookie is set HttpOnly by server; no token stored client-side
+    await res.json().catch(() => ({}));
     window.location.href = 'index.html';
   } catch (err) {
     console.error('❌ Login error:', err.message);
