@@ -45,7 +45,7 @@ app.use(cors({
 }));
 
 // Optional: explicit preflight handler (helps some proxies)
-app.options('*', cors());
+app.options('/:path(*)', cors());
 
 await connectDB();
 

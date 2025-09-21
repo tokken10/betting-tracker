@@ -45,7 +45,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Handle preflight requests early so they don't hit auth
-app.options('*', cors(corsOptions));
+app.options('/:path(*)', cors(corsOptions));
 
 // Debug logging
 app.use((req, res, next) => {
