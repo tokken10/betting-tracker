@@ -130,7 +130,8 @@ export async function settleBet(betId, newOutcome) {
   try {
     const res = await fetch(`${API_URL}/${betId}`, {
       method: 'PUT',
-      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bet),
     });
 
