@@ -19,23 +19,27 @@ app.use(cookieParser());
  * - Keep localhost entries for local development as needed
  * - You can also drive this via env var ALLOWED_ORIGINS (comma-separated)
  */
+const stripTrailingSlash = value =>
+  typeof value === 'string' ? value.replace(/\/+$/, '') : value;
+
 const envAllowed = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
-  .map(s => s.trim())
+  .map(s => stripTrailingSlash(s.trim()))
   .filter(Boolean);
 
 const allowedOrigins = new Set([
-  'https://betting-tracker-nine.vercel.app/', // TODO: replace with your actual frontend domain
+  'https://betting-tracker-nine.vercel.app', // TODO: replace with your actual frontend domain
   'http://localhost:5173',            // Vite dev (change/remove if not used)
   'http://localhost:3000',            // Next.js/other local dev
   ...envAllowed,
-]);
+].map(stripTrailingSlash));
 
 app.use(cors({
   origin(origin, callback) {
     // Allow requests with no Origin (curl/Postman/server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.has(origin)) return callback(null, true);
+    const normalizedOrigin = stripTrailingSlash(origin);
+    if (allowedOrigins.has(normalizedOrigin)) return callback(null, true);
     return callback(new Error(`CORS: Origin not allowed: ${origin}`), false);
   },
   credentials: true, // keep true if you use cookies or need auth headers in browsers
