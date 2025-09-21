@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const auth = require('./middleware/auth');
 const logger = require('./utils/logger');
@@ -43,6 +44,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(cookieParser());
 
 // Debug logging
 app.use((req, res, next) => {

@@ -29,6 +29,27 @@ function loginRateLimiter(req, res, next) {
 
 const router = express.Router();
 
+function buildCookieOptions() {
+  const isProd = process.env.NODE_ENV === 'production';
+  // For cross-site frontend/backends, SameSite=None; Secure is required
+  const sameSite = isProd ? 'none' : 'lax';
+  return {
+    httpOnly: true,
+    secure: isProd,
+    sameSite,
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  };
+}
+
+function signToken(user) {
+  return jwt.sign(
+    { id: user._id, username: user.username, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+}
+
 router.post('/register', async (req, res) => {
   try {
     const { username, password, role } = req.body;
@@ -48,12 +69,11 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     user = new User({ username, password: hashedPassword, role: role || 'user' });
     await user.save();
-    const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-    res.status(201).json({ token });
+    const token = signToken(user);
+    res
+      .cookie('token', token, buildCookieOptions())
+      .status(201)
+      .json({ user: { username: user.username, role: user.role } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -70,15 +90,34 @@ router.post('/login', loginRateLimiter, async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
-    const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-    res.json({ token });
+    const token = signToken(user);
+    res
+      .cookie('token', token, buildCookieOptions())
+      .json({ user: { username: user.username, role: user.role } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Current user from cookie (no auth middleware)
+router.get('/me', async (req, res) => {
+  try {
+    const token = req.cookies && req.cookies.token;
+    if (!token) return res.status(401).json({ error: 'Not authenticated' });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(payload.id).select('username role');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({ username: user.username, role: user.role });
+  } catch (err) {
+    res.status(401).json({ error: 'Not authenticated' });
+  }
+});
+
+// Logout clears cookie
+router.post('/logout', (req, res) => {
+  const options = buildCookieOptions();
+  res.clearCookie('token', { ...options, maxAge: undefined });
+  res.status(204).end();
 });
 
 module.exports = router;
