@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://betting-tracker-backend.vercel.app/api/:path*"
+    }
+  ]
+}
+
