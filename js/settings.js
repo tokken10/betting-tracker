@@ -113,8 +113,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    // Prefer server-managed flag from AI context (local API),
+    // since /users may be served by an external backend without this field.
+    let managed = Boolean(user?.aiKeyManaged);
+    try {
+      const ctxRes = await fetch(`${API_BASE_URL}/ai/context`, { credentials: 'include' });
+      if (ctxRes.ok) {
+        const ctx = await ctxRes.json();
+        if (typeof ctx.aiKeyManaged === 'boolean') managed = ctx.aiKeyManaged;
+      }
+    } catch {}
+
     // If admin manages the key, disable personal key UI and show status
-    if (user?.aiKeyManaged) {
+    if (managed) {
       if (input) input.disabled = true;
       const submitBtn = aiForm.querySelector('button[type="submit"]');
       if (submitBtn) submitBtn.disabled = true;
