@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/api/bets/:path*", "destination": "https://betting-tracker-backend.vercel.app/api/bets/:path*" },
     { "source": "/api/users/:path*", "destination": "https://betting-tracker-backend.vercel.app/api/users/:path*" },
-    { "source": "/api/auth/:path*", "destination": "https://betting-tracker-backend.vercel.app/api/auth/:path*" }
+    { "source": "/api/auth/:path*", "destination": "https://betting-tracker-backend.vercel.app/api/auth/:path*" },
+    { "source": "/api/ai/:path*", "destination": "https://betting-tracker-backend.vercel.app/api/ai/:path*" }
   ]
 }
