@@ -113,6 +113,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    // If admin manages the key, disable personal key UI and show status
+    if (user?.aiKeyManaged) {
+      if (input) input.disabled = true;
+      const submitBtn = aiForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+      if (removeBtn) removeBtn.style.display = 'none';
+      setAiKeyStatus('The OpenAI API key is managed by the site admin. The analyst is enabled for all users.', 'success');
+      return;
+    }
+
     updateAiKeyUI({ hasKey: Boolean(user?.aiKeyConfigured), setAt: user?.aiKeySetAt });
 
     aiForm.addEventListener('submit', async e => {

@@ -28,11 +28,13 @@ router.get('/me', async (req, res) => {
     }
 
     const stats = computeUserStatsForClient(bets);
+    const serverManaged = Boolean(process.env.OPENAI_API_KEY);
     res.json({
       username: user.username,
       role: user.role,
       stats,
-      aiKeyConfigured: Boolean(user.openAiKey),
+      aiKeyConfigured: serverManaged || Boolean(user.openAiKey),
+      aiKeyManaged: serverManaged,
       aiKeySetAt: user.openAiKeySetAt || null,
     });
   } catch (err) {
@@ -42,6 +44,9 @@ router.get('/me', async (req, res) => {
 
 router.post('/me/openai-key', async (req, res) => {
   try {
+    if (process.env.OPENAI_API_KEY) {
+      return res.status(409).json({ error: 'Server-managed OpenAI key is active; personal keys are disabled.' });
+    }
     const { apiKey } = req.body;
     if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length < 10) {
       return res.status(400).json({ error: 'A valid OpenAI API key is required.' });

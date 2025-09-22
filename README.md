@@ -20,6 +20,14 @@ A simple web application for tracking wagers. The project combines a Node.js/Exp
    ```
    The server expects environment variables such as your MongoDB connection string.
 
+### Environment Variables
+
+Set the following variables to enable optional features:
+
+- `MONGODB_URI`: MongoDB connection string (required).
+- `AI_MODEL`: Override default OpenAI model (optional; default `gpt-4o-mini`).
+- `OPENAI_API_KEY`: If set, the server will use this key for all AI Analyst requests. When present, users do not need to provide personal keys and the Settings page disables personal key entry.
+
 ## Repository Structure
 
 - `api/` – entry point for the Express application

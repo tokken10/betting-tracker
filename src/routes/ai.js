@@ -71,6 +71,8 @@ router.get('/context', async (req, res) => {
     const globalStats = computeUserStatsForClient(allBets);
     const facets = buildFilterFacets(allBets);
 
+    const serverManaged = Boolean(process.env.OPENAI_API_KEY);
+
     res.json({
       scope: summary.scope,
       filters: summary.filtersApplied,
@@ -81,7 +83,8 @@ router.get('/context', async (req, res) => {
       issues: summary.issues,
       availableFilters: facets,
       globalStats,
-      aiKeyConfigured: Boolean(user.openAiKey),
+      aiKeyConfigured: serverManaged || Boolean(user.openAiKey),
+      aiKeyManaged: serverManaged,
       aiKeySetAt: user.openAiKeySetAt || null,
       sampleSize: summary.sampleSize,
       hasClosingOdds: summary.metrics.closingTracked > 0,
@@ -217,13 +220,11 @@ router.post('/analyze', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (!user.openAiKey) {
-      return res.status(400).json({ error: 'OpenAI API key is not configured for this account.' });
-    }
-
-    const apiKey = decrypt(user.openAiKey);
+    const serverKey = process.env.OPENAI_API_KEY || null;
+    const userKey = user.openAiKey ? decrypt(user.openAiKey) : null;
+    const apiKey = serverKey || userKey;
     if (!apiKey) {
-      return res.status(400).json({ error: 'Stored API key could not be decrypted. Please re-save it.' });
+      return res.status(400).json({ error: 'OpenAI API key is not configured. Add a key in Settings or contact the administrator.' });
     }
 
     const dataScope = scope === 'filtered' ? 'filtered' : 'all';

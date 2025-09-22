@@ -29,7 +29,7 @@ let defaultHints = [
 async function ensureLoggedIn() {
   const me = window.CURRENT_USER || null;
   if (!me) {
-    appendSystemMessage('Sign in and save your OpenAI key in Settings to chat with the analyst.');
+    appendSystemMessage('Sign in to chat with the AI analyst.');
     if (questionInput) questionInput.disabled = true;
     if (sendBtn) sendBtn.disabled = true;
     return false;
@@ -319,7 +319,7 @@ async function loadContext({ scope = currentScope, filters = selectedFilters } =
     renderHints();
     populateFilterOptions(data.availableFilters);
     if (!data.aiKeyConfigured) {
-      appendSystemMessage('Add your OpenAI API key in Settings to enable the AI analyst.');
+      appendSystemMessage('AI analyst is not enabled. Add your OpenAI key in Settings or contact the admin.');
       if (questionInput) questionInput.disabled = true;
       if (sendBtn) sendBtn.disabled = true;
     }
