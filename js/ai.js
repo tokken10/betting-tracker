@@ -25,15 +25,89 @@ let defaultHints = [
   'Show profit by sport.',
   'Where am I running cold?'
 ];
+let loginWarningShown = false;
+
+function toggleInteractionEnabled(enabled) {
+  const disabled = !enabled;
+  if (questionInput) {
+    questionInput.disabled = disabled;
+  }
+  if (sendBtn) {
+    sendBtn.disabled = disabled || (enabled ? isStreaming : true);
+  }
+  scopeRadios.forEach(radio => {
+    radio.disabled = disabled;
+  });
+  if (applyFiltersBtn) {
+    applyFiltersBtn.disabled = disabled;
+  }
+  if (filterControls) {
+    const interactiveNodes = filterControls.querySelectorAll('input, select, button');
+    interactiveNodes.forEach(node => {
+      if (node === sendBtn) return;
+      node.disabled = disabled;
+    });
+  }
+}
+
+async function fetchCurrentUser() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/me`, { credentials: 'include' });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error('❌ Unable to fetch current user:', err?.message || err);
+    return null;
+  }
+}
+
+async function waitForCurrentUser() {
+  if (window.CURRENT_USER !== undefined) {
+    return window.CURRENT_USER;
+  }
+
+  return new Promise(resolve => {
+    let resolved = false;
+
+    const finish = (user) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(user);
+    };
+
+    const handleSharedLoaded = () => {
+      if (window.CURRENT_USER !== undefined) {
+        window.removeEventListener('shared:loaded', handleSharedLoaded);
+        finish(window.CURRENT_USER);
+      }
+    };
+
+    window.addEventListener('shared:loaded', handleSharedLoaded);
+
+    fetchCurrentUser().then(user => {
+      if (resolved) return;
+      window.removeEventListener('shared:loaded', handleSharedLoaded);
+      if (window.CURRENT_USER === undefined) {
+        window.CURRENT_USER = user;
+      }
+      finish(window.CURRENT_USER);
+    }).catch(() => {
+      // If fetching fails we still rely on the shared:loaded event.
+    });
+  });
+}
 
 async function ensureLoggedIn() {
   const me = window.CURRENT_USER || null;
   if (!me) {
-    appendSystemMessage('Sign in to chat with the AI analyst.');
-    if (questionInput) questionInput.disabled = true;
-    if (sendBtn) sendBtn.disabled = true;
+    if (!loginWarningShown) {
+      appendSystemMessage('Sign in to chat with the AI analyst.');
+      loginWarningShown = true;
+    }
+    toggleInteractionEnabled(false);
     return false;
   }
+  toggleInteractionEnabled(true);
   return true;
 }
 
@@ -524,6 +598,8 @@ function initInput() {
 }
 
 async function init() {
+  toggleInteractionEnabled(false);
+  await waitForCurrentUser();
   if (!(await ensureLoggedIn())) return;
   await loadContext();
   initScopeControls();
