@@ -152,6 +152,17 @@ function buildSchema() {
                 required: ['x', 'y'],
               },
             },
+            equityCurve: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  x: { type: ['string', 'number'] },
+                  y: { type: 'number' },
+                },
+                required: ['x', 'y'],
+              },
+            },
           },
         },
         chart: {
@@ -311,6 +322,7 @@ router.post('/analyze', async (req, res) => {
         bySport: summary.breakdowns.bySport,
         byMarket: summary.breakdowns.byMarket,
         byMonth: summary.breakdowns.byMonth,
+        equityCurve: summary.breakdowns.equityCurve,
       },
       chart: aiReply?.chart || null,
       followUps: Array.isArray(aiReply?.followUps) ? aiReply.followUps.slice(0, 5) : [],

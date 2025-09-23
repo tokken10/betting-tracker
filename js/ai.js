@@ -275,12 +275,19 @@ function clearChart() {
   chartCaption.textContent = '';
 }
 
-function drawChart(chart, fallbackSeries) {
+function drawChart(chart, fallbackSeries, fallbackTitle = 'Performance trend') {
   if (!chartCanvas) return;
   const ctx = chartCanvas.getContext('2d');
   ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
 
-  const series = chart?.series?.length ? chart.series : fallbackSeries ? [{ name: 'Net Profit', points: fallbackSeries }] : [];
+  const hasChartSeries = Boolean(chart?.series?.length && chart.series[0]?.points?.length);
+  const usingFallback = !hasChartSeries && Array.isArray(fallbackSeries) && fallbackSeries.length;
+  const series = hasChartSeries
+    ? chart.series
+    : usingFallback
+      ? [{ name: 'Net Profit', points: fallbackSeries }]
+      : [];
+
   if (!series.length || !series[0].points?.length) {
     chartCaption.textContent = 'No chart available for this slice yet.';
     return;
@@ -339,7 +346,8 @@ function drawChart(chart, fallbackSeries) {
     ctx.fill();
   });
 
-  chartCaption.textContent = chart?.title || 'Performance trend';
+  const caption = chart?.title || (usingFallback ? fallbackTitle : 'Performance trend');
+  chartCaption.textContent = caption;
 }
 
 function renderContext(payload) {
@@ -348,8 +356,8 @@ function renderContext(payload) {
   renderExtra(payload.context);
   renderBreakdowns(payload.breakdowns);
   renderFollowUps(payload.followUps);
-  const fallback = payload.breakdowns?.byMonth;
-  drawChart(payload.chart, fallback);
+  const fallback = payload.breakdowns?.equityCurve;
+  drawChart(payload.chart, fallback, 'Net profit/loss over time');
 }
 
 async function loadContext({ scope = currentScope, filters = selectedFilters } = {}) {
@@ -389,7 +397,7 @@ async function loadContext({ scope = currentScope, filters = selectedFilters } =
     renderMetrics(lastContext.metrics);
     renderExtra(lastContext.context);
     renderBreakdowns(lastContext.breakdowns);
-    drawChart(null, data.breakdowns?.byMonth);
+    drawChart(null, data.breakdowns?.equityCurve, 'Net profit/loss over time');
     renderHints();
     populateFilterOptions(data.availableFilters);
     if (!data.aiKeyConfigured) {
