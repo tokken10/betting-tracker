@@ -159,6 +159,9 @@ function computeBreakdowns(bets) {
   const bySport = {};
   const byMarket = {};
   const byMonthMap = new Map();
+  const equityCurve = [];
+  let runningNet = 0;
+  let resolvedIndex = 0;
 
   for (const bet of resolved) {
     const sportKey = bet.sport || 'Unspecified';
@@ -182,6 +185,13 @@ function computeBreakdowns(bets) {
       const monthEntry = byMonthMap.get(monthKey) || 0;
       byMonthMap.set(monthKey, monthEntry + (bet.profitLoss || 0));
     }
+
+    runningNet += bet.profitLoss || 0;
+    const label = bet.date
+      ? bet.date.toISOString().slice(0, 10)
+      : `Bet ${resolvedIndex + 1}`;
+    equityCurve.push({ x: label, y: round(runningNet, 2) || 0 });
+    resolvedIndex += 1;
   }
 
   const bySportFormatted = Object.fromEntries(
@@ -212,7 +222,7 @@ function computeBreakdowns(bets) {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, profit]) => ({ x: month, y: round(profit, 2) || 0 }));
 
-  return { bySport: bySportFormatted, byMarket: byMarketFormatted, byMonth };
+  return { bySport: bySportFormatted, byMarket: byMarketFormatted, byMonth, equityCurve };
 }
 
 function detectIssues(bets) {

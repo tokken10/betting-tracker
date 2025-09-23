@@ -152,6 +152,17 @@ function buildSchema() {
                 required: ['x', 'y'],
               },
             },
+            equityCurve: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  x: { type: ['string', 'number'] },
+                  y: { type: 'number' },
+                },
+                required: ['x', 'y'],
+              },
+            },
           },
         },
         chart: {
