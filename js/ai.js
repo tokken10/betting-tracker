@@ -29,6 +29,28 @@ let defaultHints = [
 let loginWarningShown = false;
 let demoContextLoaded = false;
 
+const DEFAULT_SEND_LABEL = sendBtn?.textContent?.trim() || 'Send';
+const SIGN_IN_LABEL = 'Sign in to Analyze';
+
+function redirectToLogin() {
+  window.location.href = 'login.html';
+}
+
+function configureSendButtonForGuest() {
+  if (!sendBtn) return;
+  sendBtn.removeEventListener('click', onSend);
+  sendBtn.removeEventListener('click', redirectToLogin);
+  sendBtn.textContent = SIGN_IN_LABEL;
+  sendBtn.disabled = false;
+  sendBtn.addEventListener('click', redirectToLogin);
+}
+
+function configureSendButtonForMember() {
+  if (!sendBtn) return;
+  sendBtn.removeEventListener('click', redirectToLogin);
+  sendBtn.textContent = DEFAULT_SEND_LABEL;
+}
+
 const DECIDED_OUTCOMES = new Set(['Win', 'Loss']);
 const RESOLVED_OUTCOMES = new Set(['Win', 'Loss', 'Push']);
 
@@ -519,9 +541,11 @@ async function ensureLoggedIn() {
   if (!me) {
     toggleInteractionEnabled(false);
     showDemoContext();
+    configureSendButtonForGuest();
     return false;
   }
   toggleInteractionEnabled(true);
+  configureSendButtonForMember();
   return true;
 }
 
@@ -1063,7 +1087,7 @@ function initScopeControls() {
   });
 }
 
-function initInput() {
+function initInput(loggedIn) {
   if (!questionInput) return;
   questionInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -1071,7 +1095,14 @@ function initInput() {
       onSend();
     }
   });
-  sendBtn?.addEventListener('click', onSend);
+  if (!sendBtn) return;
+  sendBtn.removeEventListener('click', onSend);
+  if (loggedIn) {
+    configureSendButtonForMember();
+    sendBtn.addEventListener('click', onSend);
+  } else {
+    configureSendButtonForGuest();
+  }
 }
 
 async function init() {
@@ -1079,7 +1110,7 @@ async function init() {
   await waitForCurrentUser();
   const loggedIn = await ensureLoggedIn();
   initScopeControls();
-  initInput();
+  initInput(loggedIn);
   if (!loggedIn) return;
   await loadContext();
 }
