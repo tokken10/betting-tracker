@@ -1,5 +1,5 @@
 import { addBet as addBetData, calculatePayout, updateBet as updateBetData, bets } from './bets.js';
-import { renderBets } from './render.js';
+import { renderBets, resetPagination } from './render.js';
 import { updateStats } from './stats.js';
 
 const FORM_FIELDS = ['date', 'sport', 'event', 'betType', 'odds', 'stake', 'outcome', 'description', 'note', 'closingOdds', 'sportsbook'];
@@ -140,6 +140,7 @@ export async function handleAddBet() {
     } else {
       bet.id = Date.now();
       await addBetData(bet);
+      resetPagination();
     }
     renderBets();
     await updateStats();
