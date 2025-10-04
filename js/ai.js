@@ -1,4 +1,5 @@
 import { API_BASE_URL } from './config.js';
+import { loadDemoData as loadDemoBets, bets as demoBets } from './bets.js';
 import { escapeHtml } from './utils.js';
 
 const threadEl = document.getElementById('ai-thread');
@@ -26,6 +27,422 @@ let defaultHints = [
   'Where am I running cold?'
 ];
 let loginWarningShown = false;
+let demoContextLoaded = false;
+
+const DECIDED_OUTCOMES = new Set(['Win', 'Loss']);
+const RESOLVED_OUTCOMES = new Set(['Win', 'Loss', 'Push']);
+
+function toNumber(value) {
+  if (value === undefined || value === null) return null;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  const str = String(value).trim();
+  if (!str) return null;
+  const normalized = str.replace(/[^0-9+\-.]/g, '');
+  if (!normalized) return null;
+  const num = Number(normalized);
+  return Number.isFinite(num) ? num : null;
+}
+
+function isLikelyDecimal(raw, numeric) {
+  if (raw === undefined || raw === null) return false;
+  const str = String(raw).trim();
+  if (!str) return false;
+  if (str.includes('/')) return false;
+  if (str.includes('.')) return true;
+  if (!str.startsWith('+') && !str.startsWith('-') && Math.abs(numeric) < 100) return true;
+  return false;
+}
+
+function toDecimalOdds(raw) {
+  const numeric = toNumber(raw);
+  if (numeric === null) return null;
+  if (isLikelyDecimal(raw, numeric)) {
+    return numeric > 0 ? numeric : null;
+  }
+  if (numeric > 0) {
+    return 1 + numeric / 100;
+  }
+  if (numeric < 0) {
+    return 1 + 100 / Math.abs(numeric);
+  }
+  return null;
+}
+
+function toImpliedProbability(raw) {
+  const numeric = toNumber(raw);
+  if (numeric === null) return null;
+  if (isLikelyDecimal(raw, numeric)) {
+    return numeric > 0 ? 1 / numeric : null;
+  }
+  if (numeric > 0) {
+    return 100 / (numeric + 100);
+  }
+  if (numeric < 0) {
+    return Math.abs(numeric) / (Math.abs(numeric) + 100);
+  }
+  return null;
+}
+
+function asDate(value) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function toPlainBet(bet) {
+  const date = asDate(bet.date);
+  const stake = Number(bet.stake) || 0;
+  const payout = Number(bet.payout) || 0;
+  let profitLoss = Number(bet.profitLoss);
+  if (!Number.isFinite(profitLoss)) {
+    if (bet.outcome === 'Pending') {
+      profitLoss = 0;
+    } else if (bet.outcome === 'Win') {
+      profitLoss = payout - stake;
+    } else if (bet.outcome === 'Loss') {
+      profitLoss = -stake;
+    } else if (bet.outcome === 'Push') {
+      profitLoss = 0;
+    } else {
+      profitLoss = 0;
+    }
+  }
+  return {
+    ...bet,
+    date,
+    stake,
+    payout,
+    profitLoss,
+    oddsValue: toNumber(bet.odds),
+    closingOddsValue: toNumber(bet.closingOdds),
+    impliedProb: toImpliedProbability(bet.odds),
+    closingImpliedProb: toImpliedProbability(bet.closingOdds),
+  };
+}
+
+function round(value, decimals = 2) {
+  if (!Number.isFinite(value)) return null;
+  const factor = 10 ** decimals;
+  return Math.round(value * factor) / factor;
+}
+
+function sortChronologically(betsArray) {
+  return [...betsArray].sort((a, b) => {
+    const aTime = a.date ? a.date.getTime() : 0;
+    const bTime = b.date ? b.date.getTime() : 0;
+    if (aTime === bTime) {
+      return (a._id || '').toString().localeCompare((b._id || '').toString());
+    }
+    return aTime - bTime;
+  });
+}
+
+function computeStreaks(betsArray) {
+  const chronological = sortChronologically(betsArray);
+  let currentWin = 0;
+  let currentLoss = 0;
+  let maxWin = 0;
+  let maxLoss = 0;
+  for (const bet of chronological) {
+    if (bet.outcome === 'Win') {
+      currentWin += 1;
+      maxWin = Math.max(maxWin, currentWin);
+      currentLoss = 0;
+    } else if (bet.outcome === 'Loss') {
+      currentLoss += 1;
+      maxLoss = Math.max(maxLoss, currentLoss);
+      currentWin = 0;
+    }
+  }
+  return { longestWinStreak: maxWin, longestLossStreak: maxLoss };
+}
+
+function computeDrawdown(betsArray) {
+  const chronological = sortChronologically(betsArray).filter(b => DECIDED_OUTCOMES.has(b.outcome));
+  let peak = 0;
+  let peakDate = null;
+  let equity = 0;
+  let worst = { amount: 0, start: null, end: null };
+  for (const bet of chronological) {
+    equity += Number(bet.profitLoss) || 0;
+    if (equity > peak) {
+      peak = equity;
+      peakDate = bet.date || peakDate;
+    }
+    const drawdown = peak - equity;
+    if (drawdown > worst.amount) {
+      worst = {
+        amount: drawdown,
+        start: peakDate,
+        end: bet.date || peakDate,
+      };
+    }
+  }
+  const durationMs = worst.start && worst.end ? Math.max(0, worst.end - worst.start) : 0;
+  const durationDays = durationMs ? Math.round(durationMs / (1000 * 60 * 60 * 24)) : 0;
+  return {
+    amount: round(worst.amount, 2) || 0,
+    start: worst.start || null,
+    end: worst.end || null,
+    durationDays,
+  };
+}
+
+function computeBreakdowns(betsArray) {
+  const resolved = betsArray.filter(b => RESOLVED_OUTCOMES.has(b.outcome));
+  const bySport = {};
+  const byMarket = {};
+  const byMonthMap = new Map();
+  const equityCurve = [];
+  let runningNet = 0;
+  let resolvedIndex = 0;
+
+  for (const bet of resolved) {
+    const sportKey = bet.sport || 'Unspecified';
+    const sportEntry = bySport[sportKey] || { bets: 0, wins: 0, stake: 0, payout: 0, profit: 0 };
+    sportEntry.bets += 1;
+    sportEntry.stake += bet.stake || 0;
+    sportEntry.payout += bet.payout || 0;
+    sportEntry.profit += bet.profitLoss || 0;
+    if (bet.outcome === 'Win') sportEntry.wins += 1;
+    bySport[sportKey] = sportEntry;
+
+    const marketKey = bet.betType || 'Other';
+    const marketEntry = byMarket[marketKey] || { bets: 0, stake: 0, profit: 0 };
+    marketEntry.bets += 1;
+    marketEntry.stake += bet.stake || 0;
+    marketEntry.profit += bet.profitLoss || 0;
+    byMarket[marketKey] = marketEntry;
+
+    if (bet.date) {
+      const monthKey = `${bet.date.getUTCFullYear()}-${String(bet.date.getUTCMonth() + 1).padStart(2, '0')}`;
+      const monthEntry = byMonthMap.get(monthKey) || 0;
+      byMonthMap.set(monthKey, monthEntry + (bet.profitLoss || 0));
+    }
+
+    runningNet += bet.profitLoss || 0;
+    const label = bet.date
+      ? bet.date.toISOString().slice(0, 10)
+      : `Bet ${resolvedIndex + 1}`;
+    equityCurve.push({ x: label, y: round(runningNet, 2) || 0 });
+    resolvedIndex += 1;
+  }
+
+  const bySportFormatted = Object.fromEntries(
+    Object.entries(bySport).map(([sport, entry]) => {
+      const winRate = entry.bets ? (entry.wins / entry.bets) * 100 : null;
+      const roi = entry.stake > 0 ? (entry.profit / entry.stake) * 100 : null;
+      return [sport, {
+        bets: entry.bets,
+        winRatePct: winRate !== null ? round(winRate, 2) : null,
+        roiPct: roi !== null ? round(roi, 2) : null,
+        netProfit: round(entry.profit, 2) || 0,
+      }];
+    })
+  );
+
+  const byMarketFormatted = Object.fromEntries(
+    Object.entries(byMarket).map(([market, entry]) => {
+      const roi = entry.stake > 0 ? (entry.profit / entry.stake) * 100 : null;
+      return [market, {
+        bets: entry.bets,
+        roiPct: roi !== null ? round(roi, 2) : null,
+        netProfit: round(entry.profit, 2) || 0,
+      }];
+    })
+  );
+
+  const byMonth = Array.from(byMonthMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, profit]) => ({ x: month, y: round(profit, 2) || 0 }));
+
+  return { bySport: bySportFormatted, byMarket: byMarketFormatted, byMonth, equityCurve };
+}
+
+function detectIssues(betsArray) {
+  const issues = new Set();
+  for (const bet of betsArray) {
+    if ((bet.stake || 0) < 0) {
+      issues.add('Negative stake values detected.');
+    }
+    if (RESOLVED_OUTCOMES.has(bet.outcome)) {
+      if (bet.payout === undefined || bet.payout === null) {
+        issues.add('Some settled bets are missing payout values.');
+      }
+      if (bet.profitLoss === undefined || bet.profitLoss === null) {
+        issues.add('Some settled bets are missing profit/loss values.');
+      }
+    }
+    if (bet.outcome === 'Pending' && (bet.payout || 0) !== 0) {
+      issues.add('Pending bets should not have payouts recorded yet.');
+    }
+  }
+  return Array.from(issues);
+}
+
+function computeMetrics(betsArray) {
+  const totalBets = betsArray.length;
+  const resolved = betsArray.filter(b => RESOLVED_OUTCOMES.has(b.outcome));
+  const decided = resolved.filter(b => DECIDED_OUTCOMES.has(b.outcome));
+  const wins = decided.filter(b => b.outcome === 'Win');
+  const losses = decided.filter(b => b.outcome === 'Loss');
+
+  const totalStake = resolved.reduce((sum, bet) => sum + (bet.stake || 0), 0);
+  const totalPayout = resolved.reduce((sum, bet) => sum + (bet.payout || 0), 0);
+  const netProfit = totalPayout - totalStake;
+  const winRate = decided.length ? (wins.length / decided.length) * 100 : null;
+  const roi = totalStake > 0 ? (netProfit / totalStake) * 100 : null;
+
+  const decimalOdds = decided
+    .map(bet => toDecimalOdds(bet.odds))
+    .filter(value => Number.isFinite(value) && value > 0);
+  const avgDecimalOdds = decimalOdds.length
+    ? decimalOdds.reduce((sum, value) => sum + value, 0) / decimalOdds.length
+    : null;
+
+  const clvEntries = betsArray
+    .map(bet => {
+      if (!Number.isFinite(bet.impliedProb) || !Number.isFinite(bet.closingImpliedProb)) {
+        return null;
+      }
+      return (bet.closingImpliedProb - bet.impliedProb) * 100;
+    })
+    .filter(value => value !== null);
+  const clvPct = clvEntries.length
+    ? clvEntries.reduce((sum, value) => sum + value, 0) / clvEntries.length
+    : null;
+
+  const pendingExposure = betsArray
+    .filter(bet => bet.outcome === 'Pending')
+    .reduce((sum, bet) => sum + (bet.stake || 0), 0);
+
+  const { longestWinStreak, longestLossStreak } = computeStreaks(betsArray);
+  const drawdown = computeDrawdown(betsArray);
+
+  const closingTracked = betsArray.filter(bet => Number.isFinite(bet.closingImpliedProb) && Number.isFinite(bet.impliedProb));
+  const closingCoveragePct = totalBets ? (closingTracked.length / totalBets) * 100 : 0;
+
+  return {
+    totalBets,
+    winRatePct: winRate !== null ? round(winRate, 2) : null,
+    roiPct: roi !== null ? round(roi, 2) : null,
+    netProfit: round(netProfit, 2) || 0,
+    avgOdds: avgDecimalOdds !== null ? round(avgDecimalOdds, 2) : null,
+    clvPct: clvPct !== null ? round(clvPct, 2) : null,
+    longestWinStreak,
+    longestLossStreak,
+    pendingExposure: round(pendingExposure, 2) || 0,
+    decidedBets: decided.length,
+    resolvedBets: resolved.length,
+    wins: wins.length,
+    losses: losses.length,
+    totalStake: round(totalStake, 2) || 0,
+    totalPayout: round(totalPayout, 2) || 0,
+    closingTracked: closingTracked.length,
+    closingCoveragePct: round(closingCoveragePct, 2) || 0,
+    drawdown,
+  };
+}
+
+function buildFilterFacets(betsArray) {
+  const sports = new Set();
+  const betTypes = new Set();
+  const outcomes = new Set();
+  for (const bet of betsArray) {
+    if (bet.sport) sports.add(bet.sport);
+    if (bet.betType) betTypes.add(bet.betType);
+    if (bet.outcome) outcomes.add(bet.outcome);
+  }
+  return {
+    sports: Array.from(sports).sort((a, b) => a.localeCompare(b)),
+    betTypes: Array.from(betTypes).sort((a, b) => a.localeCompare(b)),
+    outcomes: Array.from(outcomes).sort((a, b) => a.localeCompare(b)),
+  };
+}
+
+function formatDemoDrawdown(drawdown) {
+  if (!drawdown?.amount) return null;
+  return {
+    amount: drawdown.amount,
+    start: drawdown.start ? drawdown.start.toISOString() : null,
+    end: drawdown.end ? drawdown.end.toISOString() : null,
+    durationDays: drawdown.durationDays,
+  };
+}
+
+function summarizeDemoBets(rawBets) {
+  const betsArray = rawBets.map(toPlainBet);
+  const chronological = sortChronologically(betsArray);
+  const metrics = computeMetrics(chronological);
+  const breakdowns = computeBreakdowns(chronological);
+  const issues = detectIssues(chronological);
+  const firstBet = chronological[0];
+  const lastBet = chronological[chronological.length - 1];
+
+  return {
+    scope: 'all',
+    filtersApplied: {},
+    metrics,
+    breakdowns,
+    issues,
+    dataset: {
+      totalBets: metrics.totalBets,
+      resolvedBets: metrics.resolvedBets,
+      decidedBets: metrics.decidedBets,
+      wins: metrics.wins,
+      losses: metrics.losses,
+      pendingBets: metrics.totalBets - metrics.resolvedBets,
+      totalStake: metrics.totalStake,
+      totalPayout: metrics.totalPayout,
+      pendingExposure: metrics.pendingExposure,
+      closingTracked: metrics.closingTracked,
+      closingCoveragePct: metrics.closingCoveragePct,
+      firstBetDate: firstBet?.date ? firstBet.date.toISOString() : null,
+      lastBetDate: lastBet?.date ? lastBet.date.toISOString() : null,
+    },
+    drawdown: metrics.drawdown,
+    availableFilters: buildFilterFacets(chronological),
+  };
+}
+
+function showDemoContext() {
+  if (demoContextLoaded) return;
+  demoContextLoaded = true;
+  loadDemoBets();
+  const summary = summarizeDemoBets(demoBets);
+  lastContext = {
+    metrics: summary.metrics,
+    breakdowns: summary.breakdowns,
+    chart: {
+      type: 'line',
+      title: 'Sample net profit over time',
+      series: [
+        { name: 'Net Profit', points: summary.breakdowns.equityCurve }
+      ],
+    },
+    followUps: [
+      'What does the ROI look like in this sample?',
+      'Which sport was most profitable in the sample data?',
+      'Show monthly performance trends for the demo bets.',
+    ],
+    context: {
+      scope: summary.scope,
+      filters: summary.filtersApplied,
+      dataset: summary.dataset,
+      drawdown: formatDemoDrawdown(summary.drawdown),
+      issues: summary.issues,
+    },
+  };
+  renderContext(lastContext);
+  populateFilterOptions(summary.availableFilters);
+  renderHints([
+    'What does the ROI look like in this sample?',
+    'Which sport was most profitable in the sample?',
+    'Break down profit by month for the demo bets.',
+  ]);
+  appendSystemMessage('Viewing sample data. Sign in to run custom AI analysis on your own bets.');
+  loginWarningShown = true;
+}
 
 function toggleInteractionEnabled(enabled) {
   const disabled = !enabled;
@@ -100,11 +517,8 @@ async function waitForCurrentUser() {
 async function ensureLoggedIn() {
   const me = window.CURRENT_USER || null;
   if (!me) {
-    if (!loginWarningShown) {
-      appendSystemMessage('Sign in to chat with the AI analyst.');
-      loginWarningShown = true;
-    }
     toggleInteractionEnabled(false);
+    showDemoContext();
     return false;
   }
   toggleInteractionEnabled(true);
@@ -456,7 +870,7 @@ async function loadContext({ scope = currentScope, filters = selectedFilters } =
     renderHints();
     populateFilterOptions(data.availableFilters);
     if (!data.aiKeyConfigured) {
-      appendSystemMessage('AI analyst is not enabled. Add your OpenAI key in Settings or contact the admin.');
+      appendSystemMessage('AI analyst is not enabled for your account yet. Please contact the site admin to request access.');
       if (questionInput) questionInput.disabled = true;
       if (sendBtn) sendBtn.disabled = true;
     }
@@ -663,11 +1077,11 @@ function initInput() {
 async function init() {
   toggleInteractionEnabled(false);
   await waitForCurrentUser();
-  if (!(await ensureLoggedIn())) return;
-  await loadContext();
+  const loggedIn = await ensureLoggedIn();
   initScopeControls();
   initInput();
-  renderHints();
+  if (!loggedIn) return;
+  await loadContext();
 }
 
 init();
