@@ -1,6 +1,6 @@
 import { bets, fetchBets, loadDemoData as loadDemoBets, exportToCSV } from './bets.js';
 import { initForm, handleAddBet, saveFormData, startEditBet } from './form.js';
-import { renderBets, handleRemoveBet, handleSettleBet, showTableLoading } from './render.js';
+import { renderBets, handleRemoveBet, handleSettleBet, showTableLoading, resetPagination } from './render.js';
 import { updateStats } from './stats.js';
 import { showFullText, closeModal, showLearnMore } from './modal.js';
 
@@ -10,6 +10,7 @@ window.startEditBet = startEditBet;
 window.removeBet = handleRemoveBet;
 window.loadDemoData = async () => {
   loadDemoBets();
+  resetPagination();
   renderBets();
   await updateStats();
 };
@@ -37,6 +38,7 @@ initForm();
       await fetchBets();
     }
 
+    resetPagination();
     renderBets();
     await updateStats();
   });

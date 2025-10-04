@@ -3,6 +3,100 @@ import { updateStats } from './stats.js';
 import { formatDate, escapeHtml } from './utils.js';
 import { showBetDetails } from './modal.js';
 
+const DEFAULT_PAGE_SIZE = 25;
+let currentPage = 1;
+let pageSize = DEFAULT_PAGE_SIZE;
+let lastSortKey = null;
+let lastSortOrder = null;
+
+function ensurePaginationListeners() {
+  const pageSizeSelect = document.getElementById('pageSize');
+  if (pageSizeSelect && !pageSizeSelect.dataset.bound) {
+    pageSizeSelect.dataset.bound = 'true';
+    pageSizeSelect.addEventListener('change', event => {
+      const nextSize = Number(event.target.value);
+      if (!Number.isFinite(nextSize) || nextSize <= 0) return;
+      pageSize = nextSize;
+      currentPage = 1;
+      renderBets();
+    });
+  }
+
+  const map = [
+    ['paginationFirst', () => goToPage(1)],
+    ['paginationPrev', () => goToPage(currentPage - 1)],
+    ['paginationNext', () => goToPage(currentPage + 1)],
+    ['paginationLast', () => goToPage('last')],
+  ];
+
+  map.forEach(([id, handler]) => {
+    const button = document.getElementById(id);
+    if (button && !button.dataset.bound) {
+      button.dataset.bound = 'true';
+      button.addEventListener('click', handler);
+    }
+  });
+}
+
+function goToPage(page) {
+  const totalPages = Math.max(1, Math.ceil(bets.length / pageSize));
+  let targetPage;
+
+  if (page === 'last') {
+    targetPage = totalPages;
+  } else {
+    targetPage = Number(page);
+  }
+
+  if (!Number.isFinite(targetPage)) return;
+
+  targetPage = Math.min(Math.max(targetPage, 1), totalPages);
+
+  if (targetPage === currentPage) return;
+
+  currentPage = targetPage;
+  renderBets();
+}
+
+function updatePaginationUI(totalBets, startIndex, visibleCount, totalPages) {
+  const summary = document.getElementById('paginationSummary');
+  if (summary) {
+    if (totalBets === 0) {
+      summary.textContent = 'No bets to display';
+    } else {
+      const first = startIndex + 1;
+      const last = startIndex + visibleCount;
+      summary.textContent = `Showing ${first}–${last} of ${totalBets} • Page ${currentPage} of ${totalPages}`;
+    }
+  }
+
+  const disablePrev = currentPage <= 1 || totalBets === 0;
+  const disableNext = currentPage >= totalPages || totalBets === 0;
+
+  const buttonStates = [
+    ['paginationFirst', disablePrev],
+    ['paginationPrev', disablePrev],
+    ['paginationNext', disableNext],
+    ['paginationLast', disableNext],
+  ];
+
+  buttonStates.forEach(([id, disabled]) => {
+    const button = document.getElementById(id);
+    if (button) {
+      button.disabled = disabled;
+    }
+  });
+
+  const pageSizeSelect = document.getElementById('pageSize');
+  if (pageSizeSelect && pageSizeSelect.value !== String(pageSize)) {
+    pageSizeSelect.value = String(pageSize);
+  }
+}
+
+export function resetPagination() {
+  currentPage = 1;
+}
+
 export function showTableLoading(rows = 5) {
   const tbody = document.getElementById('betsTable');
   if (!tbody) return;
@@ -40,10 +134,18 @@ export function renderBets() {
   const tbody = document.getElementById('betsTable');
   if (!tbody) return;
 
+  ensurePaginationListeners();
+
   tbody.innerHTML = '';
 
   const sortBy = document.getElementById('sortBy')?.value || 'date';
   const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
+
+  if (sortBy !== lastSortKey || sortOrder !== lastSortOrder) {
+    currentPage = 1;
+    lastSortKey = sortBy;
+    lastSortOrder = sortOrder;
+  }
 
   const sorted = [...bets].sort((a, b) => {
     let aVal = a[sortBy];
@@ -64,15 +166,28 @@ export function renderBets() {
     return 0;
   });
 
-  if (sorted.length === 0) {
+  if (!Number.isFinite(pageSize) || pageSize <= 0) {
+    pageSize = DEFAULT_PAGE_SIZE;
+  }
+
+  const totalBets = sorted.length;
+  const totalPages = totalBets === 0 ? 1 : Math.ceil(totalBets / pageSize);
+  currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+  const startIndex = totalBets === 0 ? 0 : (currentPage - 1) * pageSize;
+  const visibleBets = totalBets === 0 ? [] : sorted.slice(startIndex, startIndex + pageSize);
+
+  updatePaginationUI(totalBets, startIndex, visibleBets.length, totalPages);
+
+  if (visibleBets.length === 0) {
     const emptyRow = document.createElement('tr');
     emptyRow.className = 'empty-state';
-    emptyRow.innerHTML = `<td colspan="11">No bets yet. Add your first bet to start tracking!</td>`;
+    emptyRow.innerHTML = `<td colspan="13">No bets yet. Add your first bet to start tracking!</td>`;
     tbody.appendChild(emptyRow);
     return;
   }
 
-  sorted.forEach(bet => {
+  visibleBets.forEach(bet => {
     const row = document.createElement('tr');
     row.className = bet.outcome.toLowerCase();
     row.tabIndex = 0;

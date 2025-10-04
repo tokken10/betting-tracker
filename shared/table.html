@@ -22,3 +22,24 @@
     </tbody>
   </table>
 </div>
+
+<div class="table-pagination" aria-live="polite">
+  <div class="pagination-page-size">
+    <label for="pageSize">Rows per page</label>
+    <select id="pageSize">
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="250">250</option>
+    </select>
+  </div>
+
+  <div id="paginationSummary" class="pagination-summary">No bets to display</div>
+
+  <div class="pagination-buttons" role="group" aria-label="Pagination controls">
+    <button type="button" id="paginationFirst" aria-label="First page">«</button>
+    <button type="button" id="paginationPrev" aria-label="Previous page">‹</button>
+    <button type="button" id="paginationNext" aria-label="Next page">›</button>
+    <button type="button" id="paginationLast" aria-label="Last page">»</button>
+  </div>
+</div>
