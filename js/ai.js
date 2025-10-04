@@ -293,13 +293,34 @@ function drawChart(chart, fallbackSeries, fallbackTitle = 'Performance trend') {
     return;
   }
   const points = series[0].points;
-  const padding = 30;
+  // Slightly larger padding to fit axis labels
+  const padding = 36;
   const width = chartCanvas.width - padding * 2;
   const height = chartCanvas.height - padding * 2;
   const values = points.map(p => p.y);
   const minVal = Math.min(...values);
   const maxVal = Math.max(...values);
   const range = maxVal - minVal || 1;
+
+  // Draw Y-axis ticks and grid lines for better readability
+  const ticks = 4; // min, ~1/3, ~2/3, max
+  ctx.strokeStyle = '#e5ecf4';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#6b7a8f';
+  ctx.font = '11px sans-serif';
+  for (let i = 0; i <= ticks; i++) {
+    const t = i / ticks;
+    const val = minVal + (1 - t) * range; // top to bottom
+    const y = padding + t * height;
+    // grid line
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(padding + width, y);
+    ctx.stroke();
+    // label
+    const label = formatNumber(val, { decimals: 1 });
+    ctx.fillText(label, 6, y - 2);
+  }
 
   ctx.strokeStyle = '#1f78d1';
   ctx.lineWidth = 2;
@@ -325,6 +346,22 @@ function drawChart(chart, fallbackSeries, fallbackTitle = 'Performance trend') {
 
   if (chart?.type === 'bar') {
     ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+    // redraw grid and y-axis labels after clearing
+    ctx.strokeStyle = '#e5ecf4';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = '#6b7a8f';
+    ctx.font = '11px sans-serif';
+    for (let i = 0; i <= ticks; i++) {
+      const t = i / ticks;
+      const val = minVal + (1 - t) * range;
+      const y = padding + t * height;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(padding + width, y);
+      ctx.stroke();
+      const label = formatNumber(val, { decimals: 1 });
+      ctx.fillText(label, 6, y - 2);
+    }
     ctx.fillStyle = '#1f78d1';
     const barWidth = width / points.length * 0.6;
     points.forEach((point, index) => {
@@ -332,10 +369,18 @@ function drawChart(chart, fallbackSeries, fallbackTitle = 'Performance trend') {
       const y = padding + (1 - (point.y - minVal) / range) * height;
       const barHeight = padding + height - y;
       ctx.fillRect(x, y, barWidth, barHeight);
+      // Numeric label above each bar
+      ctx.fillStyle = '#2c3e50';
+      ctx.font = '11px sans-serif';
+      const label = formatNumber(point.y, { decimals: 1 });
+      const textWidth = ctx.measureText(label).width;
+      ctx.fillText(label, x + (barWidth - textWidth) / 2, y - 4);
+      ctx.fillStyle = '#1f78d1';
     });
     ctx.strokeStyle = '#1f78d1';
   }
 
+  // Draw points and, for line/area charts, label the last point
   ctx.fillStyle = '#2c3e50';
   ctx.font = '12px sans-serif';
   points.forEach((point, index) => {
@@ -345,6 +390,16 @@ function drawChart(chart, fallbackSeries, fallbackTitle = 'Performance trend') {
     ctx.arc(x, y, 3, 0, Math.PI * 2);
     ctx.fill();
   });
+
+  if (chart?.type !== 'bar') {
+    const last = points[points.length - 1];
+    const lastX = padding + ((points.length - 1) / Math.max(points.length - 1, 1)) * width;
+    const lastY = padding + (1 - (last.y - minVal) / range) * height;
+    const label = formatNumber(last.y, { decimals: 1 });
+    ctx.fillStyle = '#1f2a37';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(label, lastX + 6, lastY - 6);
+  }
 
   const caption = chart?.title || (usingFallback ? fallbackTitle : 'Performance trend');
   chartCaption.textContent = caption;

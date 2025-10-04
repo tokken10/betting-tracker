@@ -781,6 +781,16 @@ tr:hover {
   .bubble {
     max-width: 100%;
   }
+
+  /* On small screens, keep thread above input (default order) */
+  .ai-thread { order: 0; }
+  .ai-input { order: 1; }
+}
+
+/* On wider screens, show input/filter box above the chat thread */
+@media (min-width: 901px) {
+  .ai-input { order: 0; }
+  .ai-thread { order: 1; }
 }
 
 .download-section {
