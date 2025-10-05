@@ -26,7 +26,8 @@ async function loadSharedComponents() {
     stats: 'shared/stats-bar.html',
     sort: 'shared/sort-controls.html',
     table: 'shared/table.html',
-    modal: 'shared/modal.html'
+    modal: 'shared/modal.html',
+    footer: 'shared/footer.html'
   };
 
   const loadPromises = Object.entries(includes).map(async ([key, path]) => {
