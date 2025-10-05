@@ -65,18 +65,6 @@ function calculateDemoStats() {
     .filter(b => b.outcome === 'Pending')
     .reduce((sum, b) => sum + (b.stake || 0), 0);
 
-  const clvEntries = bets
-    .map(b => {
-      const open = impliedProbFromOdds(b.odds);
-      const close = impliedProbFromOdds(b.closingOdds);
-      if (open === null || close === null) return null;
-      return (close - open) * 100;
-    })
-    .filter(value => value !== null);
-  const clv = clvEntries.length
-    ? clvEntries.reduce((sum, value) => sum + value, 0) / clvEntries.length
-    : null;
-
   return {
     totalBets: bets.length,
     winRate,
@@ -87,7 +75,6 @@ function calculateDemoStats() {
     mostProfitable,
     avgStake,
     winStreak,
-    clv,
     pendingExposure,
   };
 }
@@ -115,7 +102,6 @@ export async function updateStats() {
       mostProfitable,
       avgStake,
       winStreak,
-      clv,
     } = stats;
     if (el('totalBets')) el('totalBets').textContent = totalBets;
     if (el('winRate')) el('winRate').textContent = winRate.toFixed(1) + '%';
@@ -132,14 +118,5 @@ export async function updateStats() {
     if (el('bestSport')) el('bestSport').textContent = mostProfitable || '-';
     if (el('avgStake')) el('avgStake').textContent = '$' + avgStake.toFixed(2);
     if (el('winStreak')) el('winStreak').textContent = winStreak;
-    if (el('clv')) {
-      if (clv === null || Number.isNaN(clv)) {
-        el('clv').textContent = '—';
-        el('clv').className = 'stat-value';
-      } else {
-        el('clv').textContent = (clv >= 0 ? '+' : '') + clv.toFixed(1) + '%';
-        el('clv').className = 'stat-value ' + (clv >= 0 ? 'positive' : 'negative');
-      }
-    }
   }
 }
