@@ -29,12 +29,20 @@ const previewRegexes = [
   /^https?:\/\/betting-tracker-nine(-[a-z0-9-]+)?\.vercel\.app$/i
 ];
 
+// Allow all localhost-style origins for local development, regardless of port
+const localDevRegexes = [
+  /^https?:\/\/localhost(?::\d+)?$/i,
+  /^https?:\/\/127\.0\.0\.1(?::\d+)?$/i,
+  /^https?:\/\/0\.0\.0\.0(?::\d+)?$/i,
+];
+
 const corsOptions = {
   origin(origin, callback) {
     if (!origin) return callback(null, true); // Same-origin or server-to-server
     const allowed =
       exactOrigins.includes(origin) ||
-      previewRegexes.some((re) => re.test(origin));
+      previewRegexes.some((re) => re.test(origin)) ||
+      localDevRegexes.some((re) => re.test(origin));
 
     if (allowed) return callback(null, true);
     return callback(new Error(`Not allowed by CORS: ${origin}`));
