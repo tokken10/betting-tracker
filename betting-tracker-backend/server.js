@@ -21,6 +21,7 @@ const exactOrigins = [
   process.env.FRONTEND_URL_ALT,   // e.g. https://your-custom-domain.com
   'http://localhost:3000',
   'http://localhost:5173',
+  'http://127.0.0.1:5501',
 ].filter(Boolean);
 
 // Allow preview URLs of the frontend project on Vercel
