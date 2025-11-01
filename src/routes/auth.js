@@ -2,31 +2,9 @@ import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { buildAuthCookieOptions, signAuthToken } from '../utils/authTokens.js';
 
 const router = Router();
-
-function buildCookieOptions() {
-  const isProd = process.env.NODE_ENV === 'production';
-  // Cross-site (frontend on different origin) requires SameSite=None and Secure
-  const sameSite = isProd ? 'none' : 'lax';
-  return {
-    httpOnly: true,
-    secure: isProd, // must be true for SameSite=None on HTTPS
-    sameSite,
-    path: '/',
-    // Optionally set domain if you have a custom domain; omit for vercel subdomains
-    // domain: process.env.COOKIE_DOMAIN || undefined,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-  };
-}
-
-function signToken(user) {
-  return jwt.sign(
-    { id: user._id, username: user.username, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
-  );
-}
 
 router.post('/register', async (req, res) => {
   try {
@@ -41,9 +19,9 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     user = new User({ username, password: hashedPassword, role: role || 'user' });
     await user.save();
-    const token = signToken(user);
+    const token = signAuthToken(user);
     res
-      .cookie('token', token, buildCookieOptions())
+      .cookie('token', token, buildAuthCookieOptions())
       .status(201)
       .json({ user: { username: user.username, role: user.role } });
   } catch (err) {
@@ -62,9 +40,9 @@ router.post('/login', async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
-    const token = signToken(user);
+    const token = signAuthToken(user);
     res
-      .cookie('token', token, buildCookieOptions())
+      .cookie('token', token, buildAuthCookieOptions())
       .json({ user: { username: user.username, role: user.role } });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -87,7 +65,7 @@ router.get('/me', async (req, res) => {
 
 // Clear auth cookie
 router.post('/logout', (req, res) => {
-  const options = buildCookieOptions();
+  const options = buildAuthCookieOptions();
   res.clearCookie('token', { ...options, maxAge: undefined });
   res.status(204).end();
 });

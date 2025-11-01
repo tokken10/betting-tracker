@@ -21,6 +21,14 @@
         <div class="auth-controls">
           <h3>Account</h3>
           <p id="username-display" style="display: none;"></p>
+          <div id="username-section" style="display: none;">
+            <form id="username-form" class="inline-form">
+              <label for="username-input">Username</label>
+              <input type="text" id="username-input" name="username" minlength="3" maxlength="30" required />
+              <button class="btn" type="submit">Update Username</button>
+            </form>
+            <p id="username-message" class="form-feedback" aria-live="polite"></p>
+          </div>
           <a href="login.html" class="btn" id="login-btn">Log In</a>
           <a href="register.html" class="btn" id="signup-btn">Sign Up</a>
           <button class="btn" id="logout-btn" style="display: none;">Log Out</button>
